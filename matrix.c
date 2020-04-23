@@ -1,5 +1,6 @@
 #include<stdio.h>
 #include<math.h>
+#include"matrix.h"
 /****************************************************************************
   VectorAdd
 
@@ -245,7 +246,7 @@ int MatrixMultiply(int a1, int a2, int b1, int b2, double A[], double B[], doubl
 ****************************************************************************/
 int MatrixInv(int n, double a[], double b[])
 {
-    int i, j, k, l, u, v, is[20], js[20];   /* matrix dimension <= 10 */
+    int i, j, k, l, u, v, is[20] = {0}, js[20] = { 0 };   /* matrix dimension <= 10 */
     double d, p;
 
     /* 将输入矩阵赋值给输出矩阵b，下面对b矩阵求逆，a矩阵不变 */
