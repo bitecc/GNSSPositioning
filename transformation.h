@@ -24,7 +24,9 @@ struct MJDTIME
 struct GPSTIME
 {
 	unsigned short Week;
-	double SecOfWeek;
+	double SecOfWeek;//周内秒，由于整数部分数值较大可能造成小数部分精度损失
+	unsigned short Day;//一周的天数
+	double SecOfDay;//每日的秒数
 };
 
 void COMMON2MJD(struct COMMONTIME* ctime, struct MJDTIME* mjd);

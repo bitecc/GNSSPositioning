@@ -1,6 +1,9 @@
 #include<stdio.h>
 #include<math.h>
 #include"transformation.h"
+
+#define a_WGS84  6378137.0          /* Radius Earth [m]; WGS-84  */
+#define f_WGS84  1.0/298.257223563  /* Flattening; WGS-84   */
 const double PI = 3.1415926535897932384626433832795;
 
 /****************************************************************************
@@ -72,7 +75,9 @@ void MJD2COMMON(struct MJDTIME* mjd, struct COMMONTIME* ctime)
 void MJD2GPST(struct MJDTIME* mjd, struct GPSTIME* gpst)
 {
     gpst->Week = (int)((mjd->Days + mjd->FracDay - 44244) / 7);
-    gpst->SecOfWeek = (mjd->Days + mjd->FracDay - 44244 - (double)gpst->Week * 7) * 86400;
+    gpst->Day = (unsigned short)(mjd->Days - 44244 - (double)gpst->Week * 7);
+    gpst->SecOfDay = mjd->FracDay * 86400;
+    gpst->SecOfWeek = (double)gpst->Day * 86400 + gpst->SecOfDay;
 }
 
 /****************************************************************************
@@ -88,8 +93,10 @@ void MJD2GPST(struct MJDTIME* mjd, struct GPSTIME* gpst)
 ****************************************************************************/
 void GPST2MJD(struct GPSTIME* gpst, struct MJDTIME* mjd)
 {
-    mjd->Days = 44244 + gpst->Week * 7+(int)(gpst->SecOfWeek/86400);
-    mjd->FracDay = gpst->SecOfWeek / 86400 - (int)(gpst->SecOfWeek / 86400);
+    //mjd->Days = 44244 + gpst->Week * 7+(int)(gpst->SecOfWeek/86400);
+    //mjd->FracDay = gpst->SecOfWeek / 86400 - (int)(gpst->SecOfWeek / 86400);
+    mjd->Days = 44244 + gpst->Week * 7 + gpst->Day;
+    mjd->FracDay = gpst->SecOfDay / 86400.0;
 }
 
 /****************************************************************************
@@ -141,10 +148,9 @@ void GPST2COMMON(struct GPSTIME* gpst, struct COMMONTIME* ctime)
 ****************************************************************************/
 void BLh2XYZ(struct BLh* blh, struct XYZ* xyz)
 {
-    double a = 6378137.0; double f = 1.0 / 298.257223563;
     double D2R = PI / 180.0;
-    double e2 = f * 2 - f * f;
-    double N = a / sqrt(1 - e2 * pow(sin(blh->B * D2R), 2));
+    double e2 = f_WGS84 * 2 - f_WGS84 * f_WGS84;
+    double N = a_WGS84 / sqrt(1 - e2 * pow(sin(blh->B * D2R), 2));
     xyz->X = (N + blh->H) * cos(blh->B * D2R) * cos(blh->L * D2R);
     xyz->Y = (N + blh->H) * cos(blh->B * D2R) * sin(blh->L * D2R);
     xyz->Z = (N * (1 - e2) + blh->H) * sin(blh->B * D2R);
@@ -164,8 +170,7 @@ void BLh2XYZ(struct BLh* blh, struct XYZ* xyz)
 void XYZ2BLh(struct XYZ* xyz, struct BLh* blh)
 {
     double R2D = 180.0 / PI;
-    double a = 6378137.0; double f = 1.0 / 298.257223563;
-    double e2 = f * 2 - f * f;
+    double e2 = f_WGS84 * 2 - f_WGS84 * f_WGS84;
     double R2 = pow(xyz->X, 2) + pow(xyz->Y, 2);
     blh->L = atan2(xyz->Y, xyz->X) * R2D;
     double dZ = e2 * xyz->Z;
@@ -175,7 +180,7 @@ void XYZ2BLh(struct XYZ* xyz, struct BLh* blh)
     while (1) 
     {
         SB = (xyz->Z + dZ) / sqrt(R2 + pow(xyz->Z + dZ, 2));
-        N = a / sqrt(1 - e2 * SB*SB);
+        N = a_WGS84 / sqrt(1 - e2 * SB*SB);
         dZ = N * e2 * SB;
         if (fabs(dZ - dZold) < 1e-6)
             break;
