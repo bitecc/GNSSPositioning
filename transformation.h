@@ -52,7 +52,7 @@ struct BLh
 	double H;
 };
 
-void BLh2XYZ(struct BLh* blh, struct XYZ* xyz);
-void XYZ2BLh(struct XYZ* xyz, struct BLh* blh);
+int BLh2XYZ(struct BLh* blh, struct XYZ* xyz);
+int XYZ2BLh(struct XYZ* xyz, struct BLh* blh);
 
 #endif

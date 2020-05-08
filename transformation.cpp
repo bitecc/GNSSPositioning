@@ -145,15 +145,22 @@ void GPST2COMMON(struct GPSTIME* gpst, struct COMMONTIME* ctime)
   参数：
   blh       大地坐标，输入结构体的指针
   xyz       笛卡尔坐标，输出结构体的指针
+
+  返回值：0为转换失败，1为转换成功
 ****************************************************************************/
-void BLh2XYZ(struct BLh* blh, struct XYZ* xyz)
+int BLh2XYZ(struct BLh* blh, struct XYZ* xyz)
 {
+    if(fabs(blh->B)>90||fabs(blh->L>180))
+    {
+        return 0;
+    }
     double D2R = PI / 180.0;
     double e2 = f_WGS84 * 2 - f_WGS84 * f_WGS84;
     double N = a_WGS84 / sqrt(1 - e2 * pow(sin(blh->B * D2R), 2));
     xyz->X = (N + blh->H) * cos(blh->B * D2R) * cos(blh->L * D2R);
     xyz->Y = (N + blh->H) * cos(blh->B * D2R) * sin(blh->L * D2R);
     xyz->Z = (N * (1 - e2) + blh->H) * sin(blh->B * D2R);
+    return 1;
 }
 
 /****************************************************************************
@@ -166,19 +173,28 @@ void BLh2XYZ(struct BLh* blh, struct XYZ* xyz)
   参数：
   xyz       笛卡尔坐标，输入结构体的指针
   blh       大地坐标，输出结构体的指针
+  
+  返回值：0为转换失败，1为转换成功
 ****************************************************************************/
-void XYZ2BLh(struct XYZ* xyz, struct BLh* blh)
+int XYZ2BLh(struct XYZ* xyz, struct BLh* blh)
 {
+    
     double R2D = 180.0 / PI;
     double e2 = f_WGS84 * 2 - f_WGS84 * f_WGS84;
     double R2 = pow(xyz->X, 2) + pow(xyz->Y, 2);
+    if (R2 + pow(xyz->Z, 2) < 1e-6)
+    {
+        return 0;
+    }
     blh->L = atan2(xyz->Y, xyz->X) * R2D;
     double dZ = e2 * xyz->Z;
     double dZold = dZ;
     double SB = 0;
     double N = 0;
-    while (1) 
+    int i = 0;//记录循环次数
+    while (i < 25)//最多循环25次
     {
+        i++;
         SB = (xyz->Z + dZ) / sqrt(R2 + pow(xyz->Z + dZ, 2));
         N = a_WGS84 / sqrt(1 - e2 * SB*SB);
         dZ = N * e2 * SB;
@@ -189,4 +205,5 @@ void XYZ2BLh(struct XYZ* xyz, struct BLh* blh)
     }
     blh->B = atan2(xyz->Z + dZ, sqrt(R2)) * R2D;
     blh->H = sqrt(R2 + pow(xyz->Z + dZ, 2)) - N;
+    return 1;
 }

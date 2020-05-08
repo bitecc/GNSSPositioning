@@ -15,13 +15,19 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.c">
+    <ClCompile Include="decode.h">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="decode.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="matrix.c">
+    <ClCompile Include="main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="transformation.c">
+    <ClCompile Include="matrix.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="transformation.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
