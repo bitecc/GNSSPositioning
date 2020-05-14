@@ -29,16 +29,16 @@ int main()
 
 	raw_t raw;
 	FILE* fp;
-	if ((fp = fopen("20150207-1.bin", "rb")) == NULL)
+	if ((fp = fopen("Nov20160908_1030.bin", "rb")) == NULL)
 	{
 		printf("The file was not opened.\n");
 		return 0;
 	}
 	while (!feof(fp))
 	{
-		if (DecodeOemstarDatFromBinFile(fp, &raw) == 1)
+		if (DecodeOemstarDatFromBinFile(fp, &raw) == 3)
 		{
-			//printf("%4d %10.1f\n", raw.Epoch.Time.Week, raw.Epoch.Time.SecOfWeek);
+			printf("%f %f\n", raw.Pos.lat,raw.Pos.Time.SecOfWeek);
 		}
 	}
 

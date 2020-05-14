@@ -28,34 +28,35 @@ typedef struct {
 }SatObs;//一颗卫星的观测数据
 typedef struct {
 	GPSTIME Time;
+	int SatNum;
+	SatObs Obs[MAXCHANNUM];
+}EpochObs;//同历元所有卫星观测数据
+typedef struct {
+	GPSTIME Time;
 	double lat;
 	double lon;
 	double hgt;
 	float lat_std;
 	float lon_std;
-	float h_std;
-}PsrPos;
+	float hgt_std;
+}PsrPos;//定位结果
 typedef struct {
-	int prn;
-	int iode,iodc;
-	double sva;
-	int svh;
-	int week;
+	unsigned long PRN;
+	double tow;
+	unsigned long health;
+	unsigned long IODE1,IODE2,iodc;
 	GPSTIME toe, toc;
-	double A, e, i0, omega0, omega, M0, deltan, omegad, idot;
+	double A,deltaN,M0,ecc,omega,omega0,I0,Idot,omegadot;
 	double crc, crs, cuc, cus, cic, cis;
 	double tgd;
-}eph_t;
-
+}eph_t;//卫星星历数据
 typedef struct {
 	GPSTIME Time;
-	int SatNum;
-	SatObs Obs[MAXCHANNUM];
-}EpochObs;//所有卫星观测数据
-
+	eph_t eph[NSAT];
+}Ephem;//同历元所有星历数据
 struct raw_t {
 	EpochObs Epoch;
-	eph_t eph[NSAT];
+	Ephem Eph;
 	PsrPos Pos;
 	PsrPos MyPos;
 };
@@ -63,4 +64,6 @@ int find_head(unsigned char* buff, unsigned char data);
 int DecodeOemstarDatFromBinFile(FILE* fp, raw_t* raw);
 int crc32(const unsigned char* buff, int len);
 void DecodeRangeb(unsigned char buff[], int len, EpochObs* Obs);
+void DecodeGpsEphemb(unsigned char buff[], int len, Ephem* Eph);
+void DecodePsrPos(unsigned char buff[], int len, PsrPos* Pos);
 #endif
