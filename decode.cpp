@@ -26,7 +26,7 @@ DecodeOemstarDatFromBinFile
 
 输入参数：fp
 		  raw     观测数据、星历数据等
-返回值：0=文件结束；1=观测数据；2=星历；3=定位结果；4=CRC检验不通过或没有支持语句
+返回值：0=文件结束；1=观测数据；2=星历和定位结果；3=CRC检验不通过，4=没有支持语句
 ****************************/
 int DecodeOemstarDatFromBinFile(FILE* fp, raw_t* raw)
 {
@@ -64,7 +64,7 @@ int DecodeOemstarDatFromBinFile(FILE* fp, raw_t* raw)
 	// CRC检验，不通过则返回
 	if (crc32(buff, len - 4) != I4(buff + len - 4)) {
 		printf("CRC check fail.\n");
-		return 4;
+		return 3;
 	}
 
 	Time.Week = U2(buff + 14);
@@ -79,14 +79,13 @@ int DecodeOemstarDatFromBinFile(FILE* fp, raw_t* raw)
 		return 1;
 
 	case ID_GPSEPHEM:
-		raw->Eph.Time = Time;
 		DecodeGpsEphemb(buff + len - MsgLen - 4, MsgLen, &raw->Eph);
 		return 2;
 
 	case ID_PSRPOS:
 		DecodePsrPos(buff + len - MsgLen - 4, MsgLen, &raw->Pos);
 		raw->Pos.Time = Time;
-		return 3;
+		return 2;
 
 	default:
 		return 4;
@@ -145,43 +144,34 @@ DecodeGpsEphemb
 ****************************/
 void DecodeGpsEphemb(unsigned char buff[], int len, Ephem* Eph)
 {
-	int i,j=0;
 	unsigned char* p = buff;
-	memset(Eph->eph, 0, NSAT * sizeof(eph_t));
-	for (i = 0; i < NSAT; i++)
-	{
-		int H = 228 * i;
-		unsigned long prn = U4(p + H);
-		if (prn > NSAT || prn <= 0)
-			continue;//PRN不在0-32范围内则跳过该组数据
-		Eph->eph[j].PRN = prn;
-		Eph->eph[j].tow = R8(p + H + 4);
-		Eph->eph[j].health = U4(p + H + 12);
-		Eph->eph[j].IODE1 = U4(p + H + 16);
-		Eph->eph[j].IODE2 = U4(p + H + 20);
-		Eph->eph[j].toe.Week = Eph->Time.Week;
-		Eph->eph[j].toe.SecOfWeek = R8(p + H + 32);
-		Eph->eph[j].A = R8(p + H + 40);
-		Eph->eph[j].deltaN = R8(p + H + 48);
-		Eph->eph[j].M0 = R8(p + H + 56);
-		Eph->eph[j].ecc = R8(p + H + 64);
-		Eph->eph[j].omega = R8(p + H + 72);
-		Eph->eph[j].cuc = R8(p + H + 80);
-		Eph->eph[j].cus = R8(p + H + 88);
-		Eph->eph[j].crc = R8(p + H + 96);
-		Eph->eph[j].crs = R8(p + H + 104);
-		Eph->eph[j].cic = R8(p + H + 112);
-		Eph->eph[j].cis = R8(p + H + 120);
-		Eph->eph[j].I0 = R8(p + H + 128);
-		Eph->eph[j].Idot = R8(p + H + 136);
-		Eph->eph[j].omega0 = R8(p + H + 144);
-		Eph->eph[j].omegadot = R8(p + H + 152);
-		Eph->eph[j].iodc = U4(p + H + 160);
-		Eph->eph[j].toc.Week = Eph->Time.Week;
-		Eph->eph[j].toc.SecOfWeek = R8(p + H + 164);
-		Eph->eph[j].tgd = R8(p + H + 172);
-		j++;
-	}
+	unsigned long prn = U4(p);
+	if (prn <= 0 || prn > NSAT)
+		return;
+	Eph->eph[prn-1].PRN = prn;
+	Eph->eph[prn - 1].tow = R8(p + 4);
+	Eph->eph[prn - 1].health = U4(p  + 12);
+	Eph->eph[prn - 1].IODE1 = U4(p + 16);
+	Eph->eph[prn - 1].IODE2 = U4(p + 20);
+	Eph->eph[prn - 1].toe.SecOfWeek = R8(p + 32);
+	Eph->eph[prn - 1].A = R8(p + 40);
+	Eph->eph[prn - 1].deltaN = R8(p + 48);
+	Eph->eph[prn - 1].M0 = R8(p + 56);
+	Eph->eph[prn - 1].ecc = R8(p + 64);
+	Eph->eph[prn - 1].omega = R8(p + 72);
+	Eph->eph[prn - 1].cuc = R8(p + 80);
+	Eph->eph[prn - 1].cus = R8(p + 88);
+	Eph->eph[prn - 1].crc = R8(p + 96);
+	Eph->eph[prn - 1].crs = R8(p + 104);
+	Eph->eph[prn - 1].cic = R8(p + 112);
+	Eph->eph[prn - 1].cis = R8(p + 120);
+	Eph->eph[prn - 1].I0 = R8(p + 128);
+	Eph->eph[prn - 1].Idot = R8(p + 136);
+	Eph->eph[prn - 1].omega0 = R8(p + 144);
+	Eph->eph[prn - 1].omegadot = R8(p + 152);
+	Eph->eph[prn - 1].iodc = U4(p + 160);
+	Eph->eph[prn - 1].toc.SecOfWeek = R8(p + 164);
+	Eph->eph[prn - 1].tgd = R8(p + 172);
 }
 
 /***************************
@@ -196,7 +186,6 @@ DecodePsrPos
 ****************************/
 void DecodePsrPos(unsigned char buff[], int len, PsrPos* Pos)
 {
-	int i, j;
 	unsigned char* p = buff;
 	memset(Pos, 0, sizeof(PsrPos));
 	Pos->lat = R8(p + 8);

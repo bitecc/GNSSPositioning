@@ -1,6 +1,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<math.h>
+#include<string.h>
 #include"matrix.h"
 #include"transformation.h"
 #include"decode.h"
@@ -28,6 +29,7 @@ int main()
 	//printf("%d\t%f\n", gpst.Week, gpst.SecOfWeek);
 
 	raw_t raw;
+	memset(&raw.Eph, 0, NSAT * sizeof(eph_t));
 	FILE* fp;
 	if ((fp = fopen("Nov20160908_1030.bin", "rb")) == NULL)
 	{
@@ -36,9 +38,9 @@ int main()
 	}
 	while (!feof(fp))
 	{
-		if (DecodeOemstarDatFromBinFile(fp, &raw) == 3)
+		if (DecodeOemstarDatFromBinFile(fp, &raw) == 2)
 		{
-			printf("%f %f\n", raw.Pos.lat,raw.Pos.Time.SecOfWeek);
+			printf("%f %f\n", raw.Eph.eph[23].tow,raw.Pos.Time.SecOfWeek);
 		}
 	}
 

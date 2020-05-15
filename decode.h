@@ -51,7 +51,6 @@ typedef struct {
 	double tgd;
 }eph_t;//卫星星历数据
 typedef struct {
-	GPSTIME Time;
 	eph_t eph[NSAT];
 }Ephem;//同历元所有星历数据
 struct raw_t {
