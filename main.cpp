@@ -5,6 +5,7 @@
 #include"matrix.h"
 #include"transformation.h"
 #include"decode.h"
+#include"satlocation.h"
 int main()
 {
 	struct COMMONTIME ctime1 = { 2020,4,23,20,10,37.55784378329};
@@ -41,6 +42,7 @@ int main()
 		if (DecodeOemstarDatFromBinFile(fp, &raw) == 2)
 		{
 			printf("%f %f\n", raw.Eph.eph[23].tow,raw.Pos.Time.SecOfWeek);
+			
 		}
 	}
 

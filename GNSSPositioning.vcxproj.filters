@@ -30,12 +30,18 @@
     <ClCompile Include="transformation.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="satlocation.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="matrix.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="transformation.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="satlocation.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
