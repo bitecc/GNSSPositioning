@@ -14,21 +14,22 @@
 #define ID_RANGE 43
 #define ID_GPSEPHEM 7
 #define ID_PSRPOS 47
+#define ID_IONUTC 8
 enum GNSSSYS{GPS,GLONASS,BDS,GALILEO,QZSS};
 typedef struct {
 	unsigned short prn;//卫星PRN号
 	GNSSSYS Sys;
 	float cno;//载躁比
-	unsigned int track;//
-	double L[2];//
-	double L_std[2];//
-	double P[2];//
-	double P_std[2];//
-	float D[2];//
+	unsigned int track;
+	double Psr;
+	double PsrStd;
+	double Adr;
+	double AdrStd;
+	float dopp;
 }SatObs;//一颗卫星的观测数据
 typedef struct {
 	GPSTIME Time;
-	int SatNum;
+	unsigned int SatNum;
 	SatObs Obs[MAXCHANNUM];
 }EpochObs;//同历元所有卫星观测数据
 typedef struct {
@@ -41,23 +42,49 @@ typedef struct {
 	float hgt_std;
 }PsrPos;//定位结果
 typedef struct {
+	GPSTIME Time;
+	double x, y, z, vx, vy, vz, cdt, vcdt;
+	BLh blh;
+	double sigma0, vsigma0;
+}PosResult;
+typedef struct {
 	unsigned long PRN;
 	double tow;
 	unsigned long health;
-	unsigned long IODE1,IODE2,iodc;
-	GPSTIME toe, toc;
+	unsigned long IODE1,IODE2,iodc,Week;
+	double toe, toc;
 	double A,deltaN,M0,ecc,omega,omega0,I0,Idot,omegadot;
 	double crc, crs, cuc, cus, cic, cis;
-	double tgd;
+	double tgd,af0,af1,af2;
 }eph_t;//卫星星历数据
 typedef struct {
 	eph_t eph[NSAT];
 }Ephem;//同历元所有星历数据
+typedef struct {
+	double a0, a1, a2, a3;
+	double b0, b1, b2, b3;
+}IONUTC;//电离层参数
+typedef struct {
+	double x;
+	double y;
+	double z;
+	double vx;
+	double vy;
+	double vz;
+	double clk;
+	double clkd;
+}SatPos;//卫星位置等信息
+typedef struct
+{
+	SatPos satPos[NSAT];
+}SatPosSet;//存放所有卫星的位置
 struct raw_t {
 	EpochObs Epoch;
 	Ephem Eph;
 	PsrPos Pos;
-	PsrPos MyPos;
+	PosResult MyPos;
+	//SatPosSet sat;
+	IONUTC ionutc;
 };
 int find_head(unsigned char* buff, unsigned char data);
 int DecodeOemstarDatFromBinFile(FILE* fp, raw_t* raw);
@@ -65,4 +92,5 @@ int crc32(const unsigned char* buff, int len);
 void DecodeRangeb(unsigned char buff[], int len, EpochObs* Obs);
 void DecodeGpsEphemb(unsigned char buff[], int len, Ephem* Eph);
 void DecodePsrPos(unsigned char buff[], int len, PsrPos* Pos);
+void DecodeIONUTC(unsigned char buff[], int len, IONUTC* ionutc);
 #endif

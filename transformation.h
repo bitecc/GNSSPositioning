@@ -47,8 +47,8 @@ struct XYZ
 /* 大地坐标 */
 struct BLh
 {
-	double L;//经度
-	double B;//纬度
+	double L;//经度，角度
+	double B;//纬度，角度
 	double H;
 };
 

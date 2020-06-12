@@ -2,15 +2,16 @@
 #include<math.h>
 #include<string.h>
 #include"decode.h"
+#include"spp.h"
 #define U1(p) (*((unsigned char *)(p)))
 #define I1(p) (*((char *)(p)))
 static unsigned short U2(unsigned char* p) { unsigned short u; memcpy(&u, p, 2); return u; };
 static unsigned int U4(unsigned char* p) { unsigned int u; memcpy(&u, p, 4); return u; };
+static long L4(unsigned char* p) { long l; memcpy(&l, p, 4); return l; };
 static int I4(unsigned char* p) { int i; memcpy(&i, p, 4); return i; };
 static float R4(unsigned char* p) { float r; memcpy(&r, p, 4); return r; };
 static double R8(unsigned char* p) { double r; memcpy(&r, p, 8); return r; };
 #define POLYCRC32 0xEDB88320u /* CRC32 polynomial */
-
 int find_head(unsigned char* buff, unsigned char data)
 {
 	buff[0] = buff[1]; buff[1] = buff[2]; buff[2] = data;
@@ -69,7 +70,7 @@ int DecodeOemstarDatFromBinFile(FILE* fp, raw_t* raw)
 
 	Time.Week = U2(buff + 14);
 	Time.SecOfWeek = U4(buff + 16) * 0.001;
-
+	unsigned long prn;
 	// 根据MsgID，解码观测值/星历/定位结果
 	switch (MsgID)
 	{
@@ -80,12 +81,18 @@ int DecodeOemstarDatFromBinFile(FILE* fp, raw_t* raw)
 
 	case ID_GPSEPHEM:
 		DecodeGpsEphemb(buff + len - MsgLen - 4, MsgLen, &raw->Eph);
+		//prn = U4(buff + len - MsgLen - 4);
+		//SatPosition(&raw->Eph, &raw->sat, &Time, prn);
 		return 2;
 
 	case ID_PSRPOS:
 		DecodePsrPos(buff + len - MsgLen - 4, MsgLen, &raw->Pos);
 		raw->Pos.Time = Time;
 		return 2;
+
+	case ID_IONUTC:
+		DecodeIONUTC(buff + len - MsgLen - 4, MsgLen, &raw->ionutc);
+		return 8;
 
 	default:
 		return 4;
@@ -111,17 +118,18 @@ void DecodeRangeb(unsigned char buff[], int len, EpochObs* Obs)
 	unsigned char* p = buff;
 
 	memset(Obs->Obs, 0, MAXCHANNUM * sizeof(SatObs));
-	Obs->SatNum = U4(p);   p += 4;
+	Obs->SatNum = L4(p);   p += 4;
 	for (j = i = 0; i < Obs->SatNum; i++)
 	{
 		if (j > MAXCHANNUM)   return;
 
 		Obs->Obs[j].prn = U2(p + 44 * i);
-		Obs->Obs[j].P[0] = R8(p + 44 * i + 4);
-		Obs->Obs[j].P_std[0] = R4(p + 44 * i + 12);
-		Obs->Obs[j].L[0] = R8(p + 44 * i + 16);
-		Obs->Obs[j].L_std[0] = R4(p + 44 * i + 24);
-		Obs->Obs[j].D[0] = R4(p + 44 * i + 28);
+		
+		Obs->Obs[j].Psr = R8(p + 44 * i + 4);
+		Obs->Obs[j].PsrStd = R4(p + 44 * i + 12);
+		Obs->Obs[j].Adr = R8(p + 44 * i + 16);
+		Obs->Obs[j].AdrStd = R4(p + 44 * i + 24);
+		Obs->Obs[j].dopp = R4(p + 44 * i + 28);
 		Obs->Obs[j].cno = R4(p + 44 * i + 32);
 		ChStatus = U4(p + 44 * i + 40);
 
@@ -153,7 +161,8 @@ void DecodeGpsEphemb(unsigned char buff[], int len, Ephem* Eph)
 	Eph->eph[prn - 1].health = U4(p  + 12);
 	Eph->eph[prn - 1].IODE1 = U4(p + 16);
 	Eph->eph[prn - 1].IODE2 = U4(p + 20);
-	Eph->eph[prn - 1].toe.SecOfWeek = R8(p + 32);
+	Eph->eph[prn - 1].Week = U4(p + 24);
+	Eph->eph[prn - 1].toe = R8(p + 32);
 	Eph->eph[prn - 1].A = R8(p + 40);
 	Eph->eph[prn - 1].deltaN = R8(p + 48);
 	Eph->eph[prn - 1].M0 = R8(p + 56);
@@ -170,8 +179,11 @@ void DecodeGpsEphemb(unsigned char buff[], int len, Ephem* Eph)
 	Eph->eph[prn - 1].omega0 = R8(p + 144);
 	Eph->eph[prn - 1].omegadot = R8(p + 152);
 	Eph->eph[prn - 1].iodc = U4(p + 160);
-	Eph->eph[prn - 1].toc.SecOfWeek = R8(p + 164);
+	Eph->eph[prn - 1].toc = R8(p + 164);
 	Eph->eph[prn - 1].tgd = R8(p + 172);
+	Eph->eph[prn - 1].af0 = R8(p + 180);
+	Eph->eph[prn - 1].af1 = R8(p + 188);
+	Eph->eph[prn - 1].af2 = R8(p + 196);
 }
 
 /***************************
@@ -194,6 +206,19 @@ void DecodePsrPos(unsigned char buff[], int len, PsrPos* Pos)
 	Pos->lat_std = R4(p + 40);
 	Pos->lon_std = R4(p + 44);
 	Pos->hgt_std = R4(p + 48);
+}
+
+void DecodeIONUTC(unsigned char buff[], int len, IONUTC* ionutc)
+{
+	unsigned char* p = buff;
+	ionutc->a0 = R8(p);
+	ionutc->a1 = R8(p + 8);
+	ionutc->a2 = R8(p + 16);
+	ionutc->a3 = R8(p + 24);
+	ionutc->b0 = R8(p + 32);
+	ionutc->b1 = R8(p + 40);
+	ionutc->b2 = R8(p + 48);
+	ionutc->b3 = R8(p + 56);
 }
 
 int crc32(const unsigned char* buff, int len)
