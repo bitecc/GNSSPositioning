@@ -40,13 +40,13 @@ typedef struct {
 	float lat_std;
 	float lon_std;
 	float hgt_std;
-}PsrPos;//定位结果
+}PsrPos;//从二进制文件提取的定位结果
 typedef struct {
 	GPSTIME Time;
 	double x, y, z, vx, vy, vz, cdt, vcdt;
 	BLh blh;
 	double sigma0, vsigma0;
-}PosResult;
+}PosResult;//定位结果
 typedef struct {
 	unsigned long PRN;
 	double tow;
@@ -74,16 +74,14 @@ typedef struct {
 	double clk;
 	double clkd;
 }SatPos;//卫星位置等信息
-typedef struct
-{
-	SatPos satPos[NSAT];
-}SatPosSet;//存放所有卫星的位置
+typedef struct {
+	SatPos satpos[NSAT];
+}SatPosSet;//所有卫星的位置信息
 struct raw_t {
 	EpochObs Epoch;
 	Ephem Eph;
 	PsrPos Pos;
 	PosResult MyPos;
-	//SatPosSet sat;
 	IONUTC ionutc;
 };
 int find_head(unsigned char* buff, unsigned char data);

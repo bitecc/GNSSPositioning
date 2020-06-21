@@ -3,7 +3,7 @@
 #ifndef SPP_H
 #define SPP_H
 #define NSAT 32 /* ÎÀÐÇÊý */
-int SatPosition(Ephem* Eph, SatPosSet* satpos, GPSTIME* t,unsigned long prn);
+int SatPosition(Ephem* Eph, SatPos* satpos, GPSTIME* t,unsigned long prn,double psr,XYZ* xyz);
 double Klobutchar(BLh* blh, GPSTIME* gpst, IONUTC* ionutc, double E, double A);
 double Hopfield(BLh* blh, double E);
 int spp(EpochObs* obs, Ephem* ephset, IONUTC* ionutc, PosResult* pos);

@@ -27,7 +27,7 @@ DecodeOemstarDatFromBinFile
 
 输入参数：fp
 		  raw     观测数据、星历数据等
-返回值：0=文件结束；1=观测数据；2=星历和定位结果；3=CRC检验不通过，4=没有支持语句
+返回值：0=文件结束；1=观测数据；2=星历，3=定位结果，4=CRC检验不通过，5=没有支持语句，6=IONUTC
 ****************************/
 int DecodeOemstarDatFromBinFile(FILE* fp, raw_t* raw)
 {
@@ -65,7 +65,7 @@ int DecodeOemstarDatFromBinFile(FILE* fp, raw_t* raw)
 	// CRC检验，不通过则返回
 	if (crc32(buff, len - 4) != I4(buff + len - 4)) {
 		printf("CRC check fail.\n");
-		return 3;
+		return 4;
 	}
 
 	Time.Week = U2(buff + 14);
@@ -81,21 +81,19 @@ int DecodeOemstarDatFromBinFile(FILE* fp, raw_t* raw)
 
 	case ID_GPSEPHEM:
 		DecodeGpsEphemb(buff + len - MsgLen - 4, MsgLen, &raw->Eph);
-		//prn = U4(buff + len - MsgLen - 4);
-		//SatPosition(&raw->Eph, &raw->sat, &Time, prn);
 		return 2;
 
 	case ID_PSRPOS:
 		DecodePsrPos(buff + len - MsgLen - 4, MsgLen, &raw->Pos);
 		raw->Pos.Time = Time;
-		return 2;
+		return 3;
 
 	case ID_IONUTC:
 		DecodeIONUTC(buff + len - MsgLen - 4, MsgLen, &raw->ionutc);
-		return 8;
+		return 6;
 
 	default:
-		return 4;
+		return 5;
 	}
 
 	return 0;
