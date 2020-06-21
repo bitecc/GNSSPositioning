@@ -1,10 +1,6 @@
 #include<stdio.h>
 #include<math.h>
-#include"transformation.h"
-
-#define a_WGS84  6378137.0          /* Radius Earth [m]; WGS-84  */
-#define f_WGS84  1.0/298.257223563  /* Flattening; WGS-84   */
-const double PI = 3.1415926535897932384626433832795;
+#include"self_defination.h"
 
 /****************************************************************************
   COMMON2MJD

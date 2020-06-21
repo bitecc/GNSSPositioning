@@ -2,11 +2,7 @@
 #include<stdlib.h>
 #include<math.h>
 #include<string.h>
-#include"matrix.h"
-#include"transformation.h"
-#include"decode.h"
-#include"spp.h"
-
+#include"self_defination.h"
 
 int main()
 {
@@ -56,7 +52,7 @@ int main()
 		{
 			spp(&raw.Epoch, &raw.Eph, &raw.ionutc, &raw.MyPos);
 			//spv(&raw.Epoch, &raw.Eph, &raw.ionutc, &raw.MyPos);
-			printf("%f\tX=%f Y=%f Z=%f vx=%f vy=%f vz=%f\n", raw.MyPos.Time.SecOfWeek,raw.MyPos.x,raw.MyPos.y,raw.MyPos.z,raw.MyPos.vx, raw.MyPos.vy, raw.MyPos.vz);
+			printf("%f\tX=%f Y=%f Z=%f vx=%f vy=%f vz=%f\n", raw.MyPos.Time.SecOfWeek,raw.MyPos.blh.B,raw.MyPos.blh.L,raw.MyPos.blh.H,raw.MyPos.vx, raw.MyPos.vy, raw.MyPos.vz);
 		}
 	}
 

@@ -1,15 +1,7 @@
 #include<math.h>
 #include<string.h>
-#include"matrix.h"
-#include"transformation.h"
-#include"decode.h"
-#include "spp.h"
+#include"self_defination.h"
 
-double PI = 3.1415926535898;
-double c = 2.99792458e8;
-double miu = 3.986004415e14;
-double Omega_e = 7.2921151467e-5;
-double f_L1 = 1575.42e6;
 /***************************
 SatPosition
 

@@ -15,9 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="decode.h">
-      <Filter>头文件</Filter>
-    </ClCompile>
     <ClCompile Include="decode.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -35,13 +32,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="matrix.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="transformation.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="spp.h">
+    <ClInclude Include="self_defination.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

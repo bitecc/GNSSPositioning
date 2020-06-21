@@ -1,6 +1,6 @@
 #include<stdio.h>
 #include<math.h>
-#include"matrix.h"
+#include"self_defination.h"
 /****************************************************************************
   VectorAdd
 

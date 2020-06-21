@@ -139,16 +139,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="decode.cpp" />
-    <ClCompile Include="decode.h" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="matrix.cpp" />
     <ClCompile Include="spp.cpp" />
     <ClCompile Include="transformation.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="matrix.h" />
-    <ClInclude Include="spp.h" />
-    <ClInclude Include="transformation.h" />
+    <ClInclude Include="self_defination.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

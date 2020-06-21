@@ -1,8 +1,16 @@
 #include<stdio.h>
 #include<math.h>
 #include<string.h>
-#include"decode.h"
-#include"spp.h"
+#include"self_defination.h"
+#define HEAD1 0xAA /* 同步字节1 */
+#define HEAD2 0x44 /* 同步字节2 */
+#define HEAD3 0x12 /* 同步字节3 */
+#define HEADLEN 28 /* 数据头长度 */
+#define POLYCRC32 0xED888320u
+#define ID_RANGE 43
+#define ID_GPSEPHEM 7
+#define ID_PSRPOS 47
+#define ID_IONUTC 8
 #define U1(p) (*((unsigned char *)(p)))
 #define I1(p) (*((char *)(p)))
 static unsigned short U2(unsigned char* p) { unsigned short u; memcpy(&u, p, 2); return u; };
