@@ -165,7 +165,11 @@ double Klobutchar(BLh* blh,GPSTIME* gpst,IONUTC* ionutc,double E,double A)
 	per = per < 72000.0 ? 72000.0 : per;
 	double X = 2.0 * PI * (t - 50400) / per;
 	double F = 1.0 + 16 * pow(0.53 - E / 180, 3);
-	double I = F * (fabs(X) < 1.57 ? 5e-9 + amp * (1.0 + X * X * (-0.5 + X * X / 24.0)) : 5e-9);
+	double I;
+	if (fabs(X) <= 1.57)
+		I = (5e-9 + amp * (1.0 - pow(X, 2) / 2 + pow(X, 4) / 24)) * F;
+	else
+		I = 5e-9 * F;
 	return I;
 }
 
@@ -183,16 +187,15 @@ double Hopfield(BLh* blh, double E)
 	if (blh->H < -35000 || blh->H>18000)
 		return 0;
 	double H0 = 0, T0 = 288.16, P0 = 1013.25, RH0 = 0.5;
-	double T, p, RH, e, hd, Kw, Kd;
 	double hw = 11000;
-	T = T0 - 0.0065 * (blh->H - H0) + 273.16;
-	p = P0 * pow(1 - 0.0000266 * (blh->H - H0), 5.225);
-	RH = RH0 * exp(-0.0006396 * (blh->H - H0));
-	e = RH * exp(-37.2465 + 0.213166 * T - 0.000256908 * T * T);
-	hd = 40136 + 148.72 * (T - 273.16);
-	Kd = 155.2E-7 * p / T * (hd - blh->H);
-	Kw = 155.2E-7 * 4810 / T / T * e * (hw - blh->H);
-	double dtrop = Kd / sin(pow(pow(E, 2) + 6.25, 0.5) * PI / 180) + Kw / sin(pow(pow(E, 2) + 2.25, 0.5) * PI / 180);
+	double T = T0 - 0.0065 * (blh->H - H0) + 273.16;
+	double p = P0 * pow(1 - 0.0000266 * (blh->H - H0), 5.225);
+	double RH = RH0 * exp(-0.0006396 * (blh->H - H0));
+	double e = RH * exp(-37.2465 + 0.213166 * T - 0.000256908 * T * T);
+	double hd = 40136 + 148.72 * (T - 273.16);
+	double Kd = 155.2E-7 * p / T * (hd - blh->H);
+	double Kw = 155.2E-7 * 4810 * e * (hw - blh->H) / pow(T, 2);
+	double dtrop = Kd / sin(sqrt(pow(E, 2) + 6.25) * PI / 180) + Kw / sin(sqrt(pow(E, 2) + 2.25) * PI / 180);
 	return dtrop;
 }
 
@@ -259,9 +262,9 @@ int spp(EpochObs* obs,Ephem* ephset,IONUTC* ionutc,PosResult* pos)
 					double detpos[3] = { sat.x - xyz.X,
 										sat.y - xyz.Y,
 										sat.z - xyz.Z };
-					double trans_H[9] = { -sin(blh.B * D2R) * cos(blh.L * D2R),-sin(blh.B * D2R) * sin(blh.L * D2R),cos(blh.L * D2R),
+					double trans_H[9] = { -sin(blh.B * D2R) * cos(blh.L * D2R),-sin(blh.B * D2R) * sin(blh.L * D2R),cos(blh.B * D2R),
 										-sin(blh.L * D2R),cos(blh.L * D2R),0,
-										cos(blh.B * D2R) * cos(blh.L * D2R),cos(blh.B * D2R) * sin(blh.L * D2R),sin(blh.L * D2R) };
+										cos(blh.B * D2R) * cos(blh.L * D2R),cos(blh.B * D2R) * sin(blh.L * D2R),sin(blh.B * D2R) };
 					double sta_cen_coor[3];
 					MatrixMultiply(3, 3, 3, 1, trans_H, detpos, sta_cen_coor);
 					double azimuth = R2D * atan2(sta_cen_coor[1], sta_cen_coor[0]);
@@ -358,59 +361,3 @@ int spp(EpochObs* obs,Ephem* ephset,IONUTC* ionutc,PosResult* pos)
 	pos->vsigma0 = sqrt(vv[0] / ((double)num - 4));
 	return 1;
 }
-/*
-int spv(EpochObs* obs, Ephem* ephset, IONUTC* ionutc, PosResult* pos)
-{
-	if (pos->x == 0)
-		return 0;
-	SatPosSet sat;
-	double w[NSAT] = { 0 };
-	double H[NSAT * 4] = { 0 };
-	double H1[NSAT * 4] = { 0 };
-	double H2[16] = { 0 };
-	double H3[16] = { 0 };
-	double H4[NSAT * 4] = { 0 };
-	double H5[NSAT] = { 0 };
-	double v[NSAT] = { 0 };
-	double Result[4] = { 0 };
-	int num = 0;
-	for (int i = 0; i < obs->SatNum; i++)
-	{
-		unsigned long prn = obs->Obs[i].prn;
-		GPSTIME t = pos->Time;
-		if (ephset->eph[prn - 1].PRN != 0)
-		{
-			t.SecOfWeek = t.SecOfWeek - obs->Obs[i].Psr / c;
-			if (SatPosition(ephset, &sat, &t, prn,obs->Obs[i].Psr))
-			{
-				double rho = sqrt(pow(sat.satPos[prn - 1].x - pos->x, 2) 
-								+ pow(sat.satPos[prn - 1].y - pos->y, 2) 
-								+ pow(sat.satPos[prn - 1].z - pos->z, 2));
-				H[4 * num] = (pos->x - sat.satPos[prn - 1].x) / rho;
-				H[4 * num+1] = (pos->y - sat.satPos[prn - 1].y) / rho;
-				H[4 * num+2] = (pos->z - sat.satPos[prn - 1].z) / rho;
-				H[4 * num+3] = 1;
-				double rhodot = ((sat.satPos[prn - 1].x - pos->x) * sat.satPos[prn - 1].vx
-					+ (sat.satPos[prn - 1].y - pos->y) * sat.satPos[prn - 1].vy
-					+ (sat.satPos[prn - 1].z - pos->z) * sat.satPos[prn - 1].vz) / rho;
-				w[num] = -obs->Obs[i].dopp * c / f_L1 - (rhodot - sat.satPos[prn - 1].clkd * c);
-				num++;
-			}
-		}
-	}
-	MatrixTrans(num, 4, H, H1);
-	MatrixMultiply(4, num, num, 4, H1, H, H2);
-	MatrixInv(4, H2, H3);
-	MatrixMultiply(4, 4, 4, num, H3, H1, H4);
-	MatrixMultiply(4, num, num, 1, H4, w, Result);
-	pos->vx = Result[0];
-	pos->vy = Result[1];
-	pos->vz = Result[2];
-	pos->vcdt = Result[3];
-	MatrixMultiply(num, 4, 4, 1, H, Result, H5);
-	MatrixMinus(num, 1, num, 1, H5, w, v);
-	double vv[1] = { 0 };
-	MatrixMultiply(1, num, num, 1, v, v, vv);
-	pos->vsigma0 = sqrt(vv[0] / ((double)num - 4));
-	return 1;
-}*/
