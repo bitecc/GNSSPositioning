@@ -1,5 +1,3 @@
-#include<math.h>
-#include<string.h>
 #include"self_defination.h"
 
 /***************************
@@ -210,7 +208,7 @@ spp
 			pos		定位结果文件（后续历元以上一历元的结果为输入值）
 返回值：0=定位失败，1=定位成功
 ****************************/
-int spp(EpochObs* obs,Ephem* ephset,IONUTC* ionutc,PosResult* pos)
+int spp(EpochObs* obs,Ephem* ephset,IONUTC* ionutc,PosResult* pos,RTCM* rtcm)
 {
 	pos->Time = obs->Time;
 	double D2R = PI / 180;
@@ -221,6 +219,7 @@ int spp(EpochObs* obs,Ephem* ephset,IONUTC* ionutc,PosResult* pos)
 	blh = pos->blh;
 	XYZ xyz;
 	double cdt=pos->cdt;
+	double PRC,RRC;
 	int flag = 0;//迭代次数限制
 	double w[NSAT] = { 0 };
 	double B[NSAT * 4] = {0};
@@ -250,13 +249,17 @@ int spp(EpochObs* obs,Ephem* ephset,IONUTC* ionutc,PosResult* pos)
 		{
 			unsigned long prn = obs->Obs[i].prn;
 			GPSTIME t = obs->Time;
-			if (ephset->eph[prn - 1].PRN != 0)//对应卫星prn的星历存在
+			//对应卫星prn的星历存在，且星历的IODE与差分观测值的AOD相等
+			if ((ephset->eph[prn - 1].PRN != 0)&&(rtcm->newDgps[prn-1].hasRead)&&(ephset->eph[prn-1].IODE1==rtcm->newDgps[prn-1].AOD))
 			{
-				//计算信号发射时刻
-				//t.SecOfWeek = t.SecOfWeek - obs->Obs[i].Psr / c;
-				//printf("%f\n", obs->Obs[i].Psr/c);
-				if (SatPosition(ephset, &satpos, &t, prn,obs->Obs[i].Psr,&xyz))//卫星位置计算失败则跳过
+				//printf("%d,%d,%d\n", prn,ephset->eph[prn - 1].IODE1, rtcm->newDgps[prn - 1].AOD);
+				PRC = rtcm->newDgps[prn - 1].PRC; 
+				RRC = rtcm->newDgps[prn - 1].RRC;
+				double delta_t = (int)obs->Time.SecOfWeek % 3600 + obs->Time.SecOfWeek - (int)obs->Time.SecOfWeek - rtcm->soh.secOfHour;
+				PRC = PRC + RRC * delta_t;
+				if (SatPosition(ephset, &satpos, &t, prn,obs->Obs[i].Psr+PRC,&xyz))//卫星位置计算失败则跳过
 				{
+					
 					SatPos sat = satpos.satpos[prn - 1];
 					//计算卫星的高度角和方位角
 					double detpos[3] = { sat.x - xyz.X,
@@ -273,9 +276,9 @@ int spp(EpochObs* obs,Ephem* ephset,IONUTC* ionutc,PosResult* pos)
 						continue;
 
 					double rho = sqrt(pow(sat.x - xyz.X, 2) + pow(sat.y - xyz.Y, 2) + pow(sat.z - xyz.Z, 2));
-					double dion = c * Klobutchar(&blh, &t, ionutc, ele, azimuth);
-					double dtrop = Hopfield(&blh, ele);
-					w[num] = obs->Obs[i].Psr - (rho + cdt- c * sat.clk + dion + dtrop);
+					//double dion = c * Klobutchar(&blh, &t, ionutc, ele, azimuth);
+					//double dtrop = Hopfield(&blh, ele);
+					w[num] = obs->Obs[i].Psr + PRC - (rho + cdt - c * sat.clk);
 					B[4 * num] = (xyz.X - sat.x)/rho;
 					B[4 * num+1] = (xyz.Y - sat.y)/rho;
 					B[4 * num+2] = (xyz.Z - sat.z)/rho;

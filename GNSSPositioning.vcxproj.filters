@@ -30,9 +30,15 @@
     <ClCompile Include="spp.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="dgps.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="self_defination.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="sockets.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

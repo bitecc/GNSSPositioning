@@ -1,11 +1,17 @@
 #pragma once
 #include<stdio.h>
+#include<string.h>
+#include<math.h>
+#include<stdlib.h>
+#include<windows.h>
 
 /* 全局变量 */
 
 #define NSAT 32 /* 卫星数 */
 #define MAXCHANNUM 14
 #define MAXRAWLEN 4096
+#define MAXOEMLEN 5000
+#define MAXRTCMLEN 500
 enum GNSSSYS { GPS, GLONASS, BDS, GALILEO, QZSS };
 const double PI = 3.1415926535898;
 const double c = 2.99792458e8;/* 光速 */
@@ -80,17 +86,6 @@ typedef struct {
 	SatObs Obs[MAXCHANNUM];
 }EpochObs;
 
-/* 从二进制文件提取的定位结果 */
-typedef struct {
-	GPSTIME Time;
-	double lat;
-	double lon;
-	double hgt;
-	float lat_std;
-	float lon_std;
-	float hgt_std;
-}PsrPos;
-
 /* 定位结果 */
 typedef struct {
 	GPSTIME Time;
@@ -139,13 +134,46 @@ typedef struct {
 	SatPos satpos[NSAT];
 }SatPosSet;
 
+typedef struct
+{
+	unsigned short hour;
+	double secOfHour;
+}SecOfHour;
+
+/* 差分改正数 */
+typedef struct
+{
+	int hasRead;
+	SecOfHour soh;
+	unsigned short AOD;
+	unsigned short UDRE;
+	float PRC;
+	float RRC;
+}DGPS;
+
+/* RTCM解码信息 */
+typedef struct
+{
+	SecOfHour soh;
+	unsigned short len;
+	unsigned short BSNum;
+	unsigned short workState;
+	unsigned short MsgID;
+	unsigned char lastP;
+	DGPS newDgps[NSAT];
+	DGPS oldDgps[NSAT];
+}RTCM;
+
+
 struct raw_t {
 	EpochObs Epoch;
 	Ephem Eph;
-	PsrPos Pos;
+	//PsrPos Pos;
 	PosResult MyPos;
 	IONUTC ionutc;
+	RTCM rtcm;
 };
+
 
 
 /* 函数声明 */
@@ -177,11 +205,16 @@ int DecodeOemstarDatFromBinFile(FILE* fp, raw_t* raw);
 int crc32(const unsigned char* buff, int len);
 void DecodeRangeb(unsigned char buff[], int len, EpochObs* Obs);
 void DecodeGpsEphemb(unsigned char buff[], int len, Ephem* Eph);
-void DecodePsrPos(unsigned char buff[], int len, PsrPos* Pos);
 void DecodeIONUTC(unsigned char buff[], int len, IONUTC* ionutc);
+int DecodeOEMData(unsigned char* rawBuff, int LenR, int* sIndex, raw_t* raw);
+int DecodeRTCMData(unsigned char* buff, int len, int* sIndex, RTCM* rtcm);
 
 /* 定位 */
-int SatPosition(Ephem* Eph, SatPos* satpos, GPSTIME* t, unsigned long prn, double psr, XYZ* xyz);
+int SatPosition(Ephem* Eph, SatPosSet* satpos, GPSTIME* t, unsigned long prn, double psr, XYZ* xyz);
 double Klobutchar(BLh* blh, GPSTIME* gpst, IONUTC* ionutc, double E, double A);
 double Hopfield(BLh* blh, double E);
-int spp(EpochObs* obs, Ephem* ephset, IONUTC* ionutc, PosResult* pos);
+int spp(EpochObs* obs, Ephem* ephset, IONUTC* ionutc, PosResult* pos,RTCM* rtcm);
+
+/* 差分GPS */
+int RTCMProcess(unsigned char* Buff,int lenR,RTCM* rtcm);
+int OEMProcess(unsigned char* Buff,int lenR,raw_t* raw,FILE* p);

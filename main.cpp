@@ -1,11 +1,10 @@
-#include<stdio.h>
-#include<stdlib.h>
-#include<math.h>
-#include<string.h>
 #include"self_defination.h"
+#include"sockets.h"
+
 
 int main()
 {
+	/*
 	raw_t raw;
 	memset(&raw.Eph, 0, NSAT * sizeof(eph_t));
 	memset(&raw.ionutc, 0, sizeof(IONUTC));
@@ -52,6 +51,63 @@ int main()
 	fclose(fp);
 	fclose(flog1);
 	fclose(flog2);
-	system("pause");
+	system("pause");*/
+	//原始数据定义与初始化
+	raw_t raw;
+	memset(&raw.Eph, 0, NSAT * sizeof(eph_t));
+	memset(&raw.ionutc, 0, sizeof(IONUTC));
+	memset(&raw.MyPos, 0, sizeof(PosResult));
+	memset(&raw.Epoch, 0, sizeof(EpochObs));
+	memset(&raw.rtcm, 0, sizeof(RTCM));
+	raw.MyPos.blh.B = 30;
+	raw.MyPos.blh.L = 114;
+	raw.MyPos.blh.H = 40;
+	//定义两个端口
+	SOCKET sockOEM; SOCKET sockRTCM;
+	char IP[] = "47.114.134.129";
+	unsigned short portOEM = 4000;
+	unsigned short portRTCM = 5000;
+	bool OEMFlag; bool RTCMFlag;
+	unsigned char OEMBuff[MAXOEMLEN] = { 0 };
+	unsigned char RTCMBuff[MAXRTCMLEN] = { 0 };
+	int lenR_OEM, lenL_OEM, lenR_RTCM, lenL_RTCM;
+	lenL_OEM = 0; lenL_RTCM = 0;
+	int rtn; int sIndex;
+	//文件
+	FILE* pos; FILE* bindat;
+	bindat = fopen("result.bin", "wb+");
+	pos = fopen("result.pos", "w+");
+	// 打开socket端口
+	OEMFlag = OpenSocket(sockOEM, IP, portOEM);
+	RTCMFlag = OpenSocket(sockRTCM, IP, portRTCM);
+	// 网络通信读数据方法
+	while (OEMFlag&&RTCMFlag) 
+	{
+		if ((lenR_OEM = recv(sockOEM, (char*)OEMBuff+lenL_OEM, MAXOEMLEN-lenL_OEM, 0)) < 3)
+		{
+			printf("OEM SSR Info fail!\r\n");
+			CloseSocket(sockOEM);
+			OEMFlag = OpenSocket(sockOEM, IP, portOEM);
+		}
+		else if ((lenR_RTCM = recv(sockRTCM, (char*)RTCMBuff + lenL_RTCM, MAXOEMLEN - lenL_RTCM, 0)) < 3)
+		{
+			printf("OEM SSR Info fail!\r\n");
+			CloseSocket(sockOEM);
+			OEMFlag = OpenSocket(sockOEM, IP, portOEM);
+		}
+		else
+		{
+			Sleep(1200);
+			//调用相应的处理函数
+			lenL_RTCM = RTCMProcess(RTCMBuff, lenR_RTCM + lenL_RTCM, &raw.rtcm);
+			lenL_OEM = OEMProcess(OEMBuff, lenR_OEM + lenL_OEM,&raw,pos);
+			//printf("%f\n", raw.Epoch.Time.SecOfWeek);
+			fwrite(OEMBuff + lenL_OEM, sizeof(unsigned char), lenR_OEM, bindat);
+		}
+	}
+	
+	// 关闭端口
+	CloseSocket(sockOEM);
+	CloseSocket(sockRTCM);
 	return 0;
 }
