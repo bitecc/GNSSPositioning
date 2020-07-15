@@ -74,8 +74,7 @@ int main()
 	lenL_OEM = 0; lenL_RTCM = 0;
 	int rtn; int sIndex;
 	//文件
-	FILE* pos; FILE* bindat;
-	bindat = fopen("result.bin", "wb+");
+	FILE* pos;
 	pos = fopen("result.pos", "w+");
 	// 打开socket端口
 	OEMFlag = OpenSocket(sockOEM, IP, portOEM);
@@ -102,12 +101,12 @@ int main()
 			lenL_RTCM = RTCMProcess(RTCMBuff, lenR_RTCM + lenL_RTCM, &raw.rtcm);
 			lenL_OEM = OEMProcess(OEMBuff, lenR_OEM + lenL_OEM,&raw,pos);
 			//printf("%f\n", raw.Epoch.Time.SecOfWeek);
-			fwrite(OEMBuff + lenL_OEM, sizeof(unsigned char), lenR_OEM, bindat);
 		}
 	}
 	
 	// 关闭端口
 	CloseSocket(sockOEM);
 	CloseSocket(sockRTCM);
+	fclose(pos);
 	return 0;
 }

@@ -201,7 +201,6 @@ void GPST2COMMON(struct GPSTIME* gpst, struct COMMONTIME* ctime);
 
 /* Êý¾Ý½âÂë */
 int find_head(unsigned char* buff, unsigned char data);
-int DecodeOemstarDatFromBinFile(FILE* fp, raw_t* raw);
 int crc32(const unsigned char* buff, int len);
 void DecodeRangeb(unsigned char buff[], int len, EpochObs* Obs);
 void DecodeGpsEphemb(unsigned char buff[], int len, Ephem* Eph);

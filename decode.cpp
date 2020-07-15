@@ -25,87 +25,6 @@ int find_head(unsigned char* buff, unsigned char data)
 }
 
 /***************************
-DecodeOemstarDatFromBinFile
-
-功能：从二进制OEMSTAR数据文件，读取数据并解码，得到GNSS观测值、广播星历和接收机
-	  定位结果，保存到raw结构体。
-	  参考OEMSTAR命令文档
-
-输入参数：fp
-		  raw     观测数据、星历数据等
-返回值：0=文件结束；1=观测数据；2=星历，3=定位结果，4=CRC检验不通过，5=没有支持语句，6=IONUTC
-****************************/
-int DecodeOemstarDatFromBinFile(FILE* fp, raw_t* raw)
-{
-	GPSTIME Time;
-	unsigned short len, MsgID, MsgLen;
-	unsigned char dat, buff[MAXRAWLEN];
-
-	memset(buff, 0, MAXRAWLEN * sizeof(unsigned char));
-
-	// 查找同步字符
-	while (!feof(fp))
-	{
-		if ((dat = fgetc(fp)) == EOF)
-			return 0;
-		if (find_head(buff, dat) == true)
-			break;
-	}
-
-	// 读25个字符，组成header
-	dat = fgetc(fp);    // Header长度
-	if (dat > MAXRAWLEN)  return 0;
-	buff[3] = dat;
-	if (fread(buff + 4, sizeof(unsigned char), dat - 4, fp) != dat - 4)  return 0;
-	len = dat;
-
-	// 解header，MsgLen MsgID
-	MsgID = U2(buff + 4);
-	MsgLen = U2(buff + 8);
-
-	// 读MsgLen+4字符，和header组成一个语句
-	if ((len + MsgLen + 4) > MAXRAWLEN)  return 2;
-	if (fread(buff + len, sizeof(unsigned char), MsgLen + 4, fp) != MsgLen + 4)  return 0;
-	len = len + MsgLen + 4;
-
-	// CRC检验，不通过则返回
-	if (crc32(buff, len - 4) != I4(buff + len - 4)) {
-		printf("CRC check fail.\n");
-		return 4;
-	}
-
-	Time.Week = U2(buff + 14);
-	Time.SecOfWeek = U4(buff + 16) * 0.001;
-	unsigned long prn;
-	// 根据MsgID，解码观测值/星历/定位结果
-	switch (MsgID)
-	{
-	case ID_RANGE:
-		raw->Epoch.Time = Time;
-		DecodeRangeb(buff + len - MsgLen - 4, MsgLen, &raw->Epoch);
-		return 1;
-
-	case ID_GPSEPHEM:
-		DecodeGpsEphemb(buff + len - MsgLen - 4, MsgLen, &raw->Eph);
-		return 2;
-
-	/*case ID_PSRPOS:
-		DecodePsrPos(buff + len - MsgLen - 4, MsgLen, &raw->Pos);
-		raw->Pos.Time = Time;
-		return 3;
-		*/
-	case ID_IONUTC:
-		DecodeIONUTC(buff + len - MsgLen - 4, MsgLen, &raw->ionutc);
-		return 6;
-
-	default:
-		return 5;
-	}
-
-	return 0;
-}
-
-/***************************
 DecodeRangeb
 
 功能：从二进制缓冲区中，根据OEMSTAR rangeb的数据格式，解码得到GNSS观测值。
@@ -408,7 +327,16 @@ int decodeRTCMType1(unsigned char buff[], unsigned short bodyLgt, SecOfHour soh,
 	return 1;
 }
 
-//读取RTCM文件头
+/***************************
+DecodeRTCMData
+
+功能：读取RTCM的文件头和电文1
+
+输入参数：buff		数据缓冲区
+		  len		数据缓冲区的长度
+		  sIndex	标记每一组电文的开始位置
+返回值：0=结束；1=电文1解码成功；-1=奇偶检验不通过，-2=空间不足
+****************************/
 int DecodeRTCMData(unsigned char* buff, int len, int* sIndex, RTCM* rtcm)
 {
 	int a, i, flag1, flag2, index = 0;
@@ -539,9 +467,6 @@ int DecodeRTCMData(unsigned char* buff, int len, int* sIndex, RTCM* rtcm)
 		//printf("暂不支持该类型的解码！\n");
 		break;
 	}
-
-	//输出当前历元解算结果
-	//ouputRTCMRst(rtcm);
 
 	*sIndex += index;
 	rtcm->lastP = word[3];

@@ -1,5 +1,15 @@
 #include"self_defination.h"
+/***************************
+OEMProcess
 
+功能：处理观测值文件的端口的数据，定位解算
+
+输入参数：Buff		数据缓冲区
+		  lenR		数据缓冲区的畅爽
+		  raw		存放解码数据
+		  p			输出解算结果的文件指针
+返回值：剩余缓冲区的长度
+****************************/
 int OEMProcess(unsigned char* Buff, int lenR, raw_t* raw,FILE* p)
 {
 	int sIndex = 0;
@@ -33,6 +43,16 @@ int OEMProcess(unsigned char* Buff, int lenR, raw_t* raw,FILE* p)
 	return lenR - sIndex;
 }
 
+/***************************
+RTCMProcess
+
+功能：处理RTCM的数据，输出rtcm信息
+
+输入参数：Buff		数据缓冲区
+		  lenR		数据缓冲区的畅爽
+		  rtcm		存放解码数据
+返回值：剩余缓冲区的长度
+****************************/
 int RTCMProcess(unsigned char* Buff, int lenR, RTCM* rtcm)
 {
 	int sIndex = 0;
