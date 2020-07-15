@@ -1,14 +1,14 @@
-#include"self_defination.h"
+ï»¿#include"self_defination.h"
 /***************************
 OEMProcess
 
-¹¦ÄÜ£º´¦Àí¹Û²âÖµÎÄ¼şµÄ¶Ë¿ÚµÄÊı¾İ£¬¶¨Î»½âËã
+åŠŸèƒ½ï¼šå¤„ç†è§‚æµ‹å€¼æ–‡ä»¶çš„ç«¯å£çš„æ•°æ®ï¼Œå®šä½è§£ç®—
 
-ÊäÈë²ÎÊı£ºBuff		Êı¾İ»º³åÇø
-		  lenR		Êı¾İ»º³åÇøµÄ³©Ë¬
-		  raw		´æ·Å½âÂëÊı¾İ
-		  p			Êä³ö½âËã½á¹ûµÄÎÄ¼şÖ¸Õë
-·µ»ØÖµ£ºÊ£Óà»º³åÇøµÄ³¤¶È
+è¾“å…¥å‚æ•°ï¼šBuff		æ•°æ®ç¼“å†²åŒº
+		  lenR		æ•°æ®ç¼“å†²åŒºçš„ç•…çˆ½
+		  raw		å­˜æ”¾è§£ç æ•°æ®
+		  p			è¾“å‡ºè§£ç®—ç»“æœçš„æ–‡ä»¶æŒ‡é’ˆ
+è¿”å›å€¼ï¼šå‰©ä½™ç¼“å†²åŒºçš„é•¿åº¦
 ****************************/
 int OEMProcess(unsigned char* Buff, int lenR, raw_t* raw,FILE* p)
 {
@@ -22,7 +22,7 @@ int OEMProcess(unsigned char* Buff, int lenR, raw_t* raw,FILE* p)
 		{
 		case 1:
 		{
-			//½âËã½ÓÊÕ»úÎ»ÖÃ¡¢ËÙ¶È¼°ÖÓ²îµÈ
+			//è§£ç®—æ¥æ”¶æœºä½ç½®ã€é€Ÿåº¦åŠé’Ÿå·®ç­‰
 			//calRecPV(epoDat, pntRst, satsol);
 			spp(&raw->Epoch, &raw->Eph, &raw->ionutc, &raw->MyPos,&raw->rtcm);
 			printf("%f\t%f\t%f\t%f\t%.4f\t%.4f\t%.4f\n", raw->MyPos.Time.SecOfWeek, raw->MyPos.x, raw->MyPos.y, raw->MyPos.z,raw->MyPos.vx,raw->MyPos.vy,raw->MyPos.vz);
@@ -35,7 +35,7 @@ int OEMProcess(unsigned char* Buff, int lenR, raw_t* raw,FILE* p)
 		}
 		if (rtn == 0)
 		{
-			//½«Ê£Óà½â¿½±´ÖÁBuff¿ªÍ·
+			//å°†å‰©ä½™è§£æ‹·è´è‡³Buffå¼€å¤´
 			memcpy(Buff, Buff + sIndex, lenR - sIndex);
 			break;
 		}
@@ -46,12 +46,12 @@ int OEMProcess(unsigned char* Buff, int lenR, raw_t* raw,FILE* p)
 /***************************
 RTCMProcess
 
-¹¦ÄÜ£º´¦ÀíRTCMµÄÊı¾İ£¬Êä³örtcmĞÅÏ¢
+åŠŸèƒ½ï¼šå¤„ç†RTCMçš„æ•°æ®ï¼Œè¾“å‡ºrtcmä¿¡æ¯
 
-ÊäÈë²ÎÊı£ºBuff		Êı¾İ»º³åÇø
-		  lenR		Êı¾İ»º³åÇøµÄ³©Ë¬
-		  rtcm		´æ·Å½âÂëÊı¾İ
-·µ»ØÖµ£ºÊ£Óà»º³åÇøµÄ³¤¶È
+è¾“å…¥å‚æ•°ï¼šBuff		æ•°æ®ç¼“å†²åŒº
+		  lenR		æ•°æ®ç¼“å†²åŒºçš„ç•…çˆ½
+		  rtcm		å­˜æ”¾è§£ç æ•°æ®
+è¿”å›å€¼ï¼šå‰©ä½™ç¼“å†²åŒºçš„é•¿åº¦
 ****************************/
 int RTCMProcess(unsigned char* Buff, int lenR, RTCM* rtcm)
 {

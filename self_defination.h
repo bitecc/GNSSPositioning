@@ -1,29 +1,29 @@
-#pragma once
+ï»¿#pragma once
 #include<stdio.h>
 #include<string.h>
 #include<math.h>
 #include<stdlib.h>
 #include<windows.h>
 
-/* È«¾Ö±äÁ¿ */
+/* å…¨å±€å˜é‡ */
 
-#define NSAT 32 /* ÎÀĞÇÊı */
+#define NSAT 32 /* å«æ˜Ÿæ•° */
 #define MAXCHANNUM 14
 #define MAXRAWLEN 4096
 #define MAXOEMLEN 5000
 #define MAXRTCMLEN 500
 enum GNSSSYS { GPS, GLONASS, BDS, GALILEO, QZSS };
 const double PI = 3.1415926535898;
-const double c = 2.99792458e8;/* ¹âËÙ */
+const double c = 2.99792458e8;/* å…‰é€Ÿ */
 const double miu = 3.986004415e14;/* GM */
-const double Omega_e = 7.2921151467e-5;/* µØÇò×Ô×ª½ÇËÙ¶È */
-const double f_L1 = 1575.42e6;/* L1µÄÆµÂÊ */
+const double Omega_e = 7.2921151467e-5;/* åœ°çƒè‡ªè½¬è§’é€Ÿåº¦ */
+const double f_L1 = 1575.42e6;/* L1çš„é¢‘ç‡ */
 const double a_WGS84 = 6378137.0;          /* Radius Earth [m]; WGS-84  */
 const double f_WGS84 = 1.0 / 298.257223563;
 
-/* ½á¹¹ÌåÀàĞÍ¶¨Òå */
+/* ç»“æ„ä½“ç±»å‹å®šä¹‰ */
 
-/* Í¨ÓÃ¼ÆÊ±·¨ */
+/* é€šç”¨è®¡æ—¶æ³• */
 struct COMMONTIME
 {
 	unsigned short Year;
@@ -34,23 +34,23 @@ struct COMMONTIME
 	double Second;
 };
 
-/* ¼ò»¯ÈåÂÔÈÕ */
+/* ç®€åŒ–å„’ç•¥æ—¥ */
 struct MJDTIME
 {
 	int Days;
 	double FracDay;
 };
 
-/* GPSÊ± */
+/* GPSæ—¶ */
 struct GPSTIME
 {
 	unsigned short Week;
-	double SecOfWeek;//ÖÜÄÚÃë£¬ÓÉÓÚÕûÊı²¿·ÖÊıÖµ½Ï´ó¿ÉÄÜÔì³ÉĞ¡Êı²¿·Ö¾«¶ÈËğÊ§
-	unsigned short Day;//Ò»ÖÜµÄÌìÊı
-	double SecOfDay;//Ã¿ÈÕµÄÃëÊı
+	double SecOfWeek;//å‘¨å†…ç§’ï¼Œç”±äºæ•´æ•°éƒ¨åˆ†æ•°å€¼è¾ƒå¤§å¯èƒ½é€ æˆå°æ•°éƒ¨åˆ†ç²¾åº¦æŸå¤±
+	unsigned short Day;//ä¸€å‘¨çš„å¤©æ•°
+	double SecOfDay;//æ¯æ—¥çš„ç§’æ•°
 };
 
-/* µÑ¿¨¶û×ø±ê */
+/* ç¬›å¡å°”åæ ‡ */
 struct XYZ
 {
 	double X;
@@ -58,19 +58,19 @@ struct XYZ
 	double Z;
 };
 
-/* ´óµØ×ø±ê */
+/* å¤§åœ°åæ ‡ */
 struct BLh
 {
-	double L;//¾­¶È£¬½Ç¶È
-	double B;//Î³¶È£¬½Ç¶È
+	double L;//ç»åº¦ï¼Œè§’åº¦
+	double B;//çº¬åº¦ï¼Œè§’åº¦
 	double H;
 };
 
-/* Ò»¿ÅÎÀĞÇµÄ¹Û²âÊı¾İ */
+/* ä¸€é¢—å«æ˜Ÿçš„è§‚æµ‹æ•°æ® */
 typedef struct {
-	unsigned short prn;//ÎÀĞÇPRNºÅ
+	unsigned short prn;//å«æ˜ŸPRNå·
 	GNSSSYS Sys;
-	float cno;//ÔØÔê±È
+	float cno;//è½½èºæ¯”
 	unsigned int track;
 	double Psr;
 	double PsrStd;
@@ -79,14 +79,14 @@ typedef struct {
 	float dopp;
 }SatObs;
 
-/* Í¬ÀúÔªËùÓĞÎÀĞÇ¹Û²âÊı¾İ */
+/* åŒå†å…ƒæ‰€æœ‰å«æ˜Ÿè§‚æµ‹æ•°æ® */
 typedef struct {
 	GPSTIME Time;
 	unsigned int SatNum;
 	SatObs Obs[MAXCHANNUM];
 }EpochObs;
 
-/* ¶¨Î»½á¹û */
+/* å®šä½ç»“æœ */
 typedef struct {
 	GPSTIME Time;
 	double x, y, z, vx, vy, vz, cdt, vcdt;
@@ -94,7 +94,7 @@ typedef struct {
 	double sigma0, vsigma0;
 }PosResult;
 
-/* ÎÀĞÇĞÇÀúÊı¾İ */
+/* å«æ˜Ÿæ˜Ÿå†æ•°æ® */
 typedef struct {
 	unsigned long PRN;
 	double tow;
@@ -106,18 +106,18 @@ typedef struct {
 	double tgd, af0, af1, af2;
 }eph_t;
 
-/* Í¬ÀúÔªËùÓĞĞÇÀúÊı¾İ */
+/* åŒå†å…ƒæ‰€æœ‰æ˜Ÿå†æ•°æ® */
 typedef struct {
 	eph_t eph[NSAT];
 }Ephem;
 
-/* µçÀë²ã²ÎÊı */
+/* ç”µç¦»å±‚å‚æ•° */
 typedef struct {
 	double a0, a1, a2, a3;
 	double b0, b1, b2, b3;
 }IONUTC;
 
-/* ÎÀĞÇÎ»ÖÃµÈĞÅÏ¢ */
+/* å«æ˜Ÿä½ç½®ç­‰ä¿¡æ¯ */
 typedef struct {
 	double x;
 	double y;
@@ -129,39 +129,31 @@ typedef struct {
 	double clkd;
 }SatPos;
 
-/* ËùÓĞÎÀĞÇµÄÎ»ÖÃĞÅÏ¢ */
+/* æ‰€æœ‰å«æ˜Ÿçš„ä½ç½®ä¿¡æ¯ */
 typedef struct {
 	SatPos satpos[NSAT];
 }SatPosSet;
 
-typedef struct
-{
-	unsigned short hour;
-	double secOfHour;
-}SecOfHour;
-
-/* ²î·Ö¸ÄÕıÊı */
+/* å·®åˆ†æ”¹æ­£æ•° */
 typedef struct
 {
 	int hasRead;
-	SecOfHour soh;
+	double soh;
 	unsigned short AOD;
 	unsigned short UDRE;
 	float PRC;
 	float RRC;
 }DGPS;
 
-/* RTCM½âÂëĞÅÏ¢ */
+/* RTCMè§£ç ä¿¡æ¯ */
 typedef struct
 {
-	SecOfHour soh;
+	double soh;
 	unsigned short len;
-	unsigned short BSNum;
-	unsigned short workState;
-	unsigned short MsgID;
+	unsigned short BSNum;//åŸºå‡†ç«™æ•°é‡
+	unsigned short workState;//å·¥ä½œçŠ¶æ€
 	unsigned char lastP;
-	DGPS newDgps[NSAT];
-	DGPS oldDgps[NSAT];
+	DGPS dGPS[NSAT];
 }RTCM;
 
 
@@ -176,20 +168,20 @@ struct raw_t {
 
 
 
-/* º¯ÊıÉùÃ÷ */
+/* å‡½æ•°å£°æ˜ */
 
-/* ¾ØÕóÔËËã */
-int VectorAdd(int size_a, int size_b, double A[], double B[], double C[]);//ÏòÁ¿¼Ó·¨
-int VectorMinus(int size_a, int size_b, double A[], double B[], double C[]);//ÏòÁ¿¼õ·¨
-int VectorDot(int size_a, int size_b, double A[], double B[], double C[]);//ÏòÁ¿µã³Ë
-int VectorCross(int size_a, int size_b, double A[], double B[], double C[]);//ÏòÁ¿²æ³Ë
-int MatrixAdd(int a1, int a2, int b1, int b2, double A[], double B[], double C[]);//¾ØÕó¼Ó·¨
-int MatrixMinus(int a1, int a2, int b1, int b2, double A[], double b[], double C[]);//¾ØÕó¼õ·¨
-int MatrixMultiply(int a1, int a2, int b1, int b2, double A[], double B[], double C[]);//¾ØÕó³Ë·¨
-int MatrixInv(int n, double a[], double b[]);//¾ØÕóÇóÄæ
-int MatrixTrans(int a1, int a2, double A[], double B[]);//¾ØÕó×ªÖÃ
+/* çŸ©é˜µè¿ç®— */
+int VectorAdd(int size_a, int size_b, double A[], double B[], double C[]);//å‘é‡åŠ æ³•
+int VectorMinus(int size_a, int size_b, double A[], double B[], double C[]);//å‘é‡å‡æ³•
+int VectorDot(int size_a, int size_b, double A[], double B[], double C[]);//å‘é‡ç‚¹ä¹˜
+int VectorCross(int size_a, int size_b, double A[], double B[], double C[]);//å‘é‡å‰ä¹˜
+int MatrixAdd(int a1, int a2, int b1, int b2, double A[], double B[], double C[]);//çŸ©é˜µåŠ æ³•
+int MatrixMinus(int a1, int a2, int b1, int b2, double A[], double b[], double C[]);//çŸ©é˜µå‡æ³•
+int MatrixMultiply(int a1, int a2, int b1, int b2, double A[], double B[], double C[]);//çŸ©é˜µä¹˜æ³•
+int MatrixInv(int n, double a[], double b[]);//çŸ©é˜µæ±‚é€†
+int MatrixTrans(int a1, int a2, double A[], double B[]);//çŸ©é˜µè½¬ç½®
 
-/* ×ø±ê×ª»»ÓëÊ±¼ä×ª»» */
+/* åæ ‡è½¬æ¢ä¸æ—¶é—´è½¬æ¢ */
 int BLh2XYZ(struct BLh* blh, struct XYZ* xyz);
 int XYZ2BLh(struct XYZ* xyz, struct BLh* blh);
 void COMMON2MJD(struct COMMONTIME* ctime, struct MJDTIME* mjd);
@@ -199,7 +191,7 @@ void GPST2MJD(struct GPSTIME* gpst, struct MJDTIME* mjd);
 void COMMON2GPST(struct COMMONTIME* ctime, struct GPSTIME* gpst);
 void GPST2COMMON(struct GPSTIME* gpst, struct COMMONTIME* ctime);
 
-/* Êı¾İ½âÂë */
+/* æ•°æ®è§£ç  */
 int find_head(unsigned char* buff, unsigned char data);
 int crc32(const unsigned char* buff, int len);
 void DecodeRangeb(unsigned char buff[], int len, EpochObs* Obs);
@@ -208,12 +200,12 @@ void DecodeIONUTC(unsigned char buff[], int len, IONUTC* ionutc);
 int DecodeOEMData(unsigned char* rawBuff, int LenR, int* sIndex, raw_t* raw);
 int DecodeRTCMData(unsigned char* buff, int len, int* sIndex, RTCM* rtcm);
 
-/* ¶¨Î» */
+/* å®šä½ */
 int SatPosition(Ephem* Eph, SatPosSet* satpos, GPSTIME* t, unsigned long prn, double psr, XYZ* xyz);
 double Klobutchar(BLh* blh, GPSTIME* gpst, IONUTC* ionutc, double E, double A);
 double Hopfield(BLh* blh, double E);
 int spp(EpochObs* obs, Ephem* ephset, IONUTC* ionutc, PosResult* pos,RTCM* rtcm);
 
-/* ²î·ÖGPS */
+/* å·®åˆ†GPS */
 int RTCMProcess(unsigned char* Buff,int lenR,RTCM* rtcm);
 int OEMProcess(unsigned char* Buff,int lenR,raw_t* raw,FILE* p);

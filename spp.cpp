@@ -1,47 +1,47 @@
-#include"self_defination.h"
+ï»¿#include"self_defination.h"
 
 /***************************
 SatPosition
 
-¹¦ÄÜ£º¸ù¾İÎÀĞÇ¹ã²¥ĞÇÀú£¬¼ÆËãÎÀĞÇµÄÎ»ÖÃ¡¢ËÙ¶È¡¢ÖÓ²îºÍÖÓËÙ
+åŠŸèƒ½ï¼šæ ¹æ®å«æ˜Ÿå¹¿æ’­æ˜Ÿå†ï¼Œè®¡ç®—å«æ˜Ÿçš„ä½ç½®ã€é€Ÿåº¦ã€é’Ÿå·®å’Œé’Ÿé€Ÿ
 
-ÊäÈë²ÎÊı£º	Eph		ËùÓĞÎÀĞÇµÄ¹ã²¥ĞÇÀú
-			satpos	´æ·ÅÎÀĞÇÎ»ÖÃµÄÊı×é
-			t		µ±Ç°ÀúÔªµÄÊ±¼ä
-			prn		ÎÀĞÇÊı
-			psr		Î±¾à
-			xyz		²âÕ¾×ø±ê
-·µ»ØÖµ£º0=¼ÆËãÊ§°Ü
+è¾“å…¥å‚æ•°ï¼š	Eph		æ‰€æœ‰å«æ˜Ÿçš„å¹¿æ’­æ˜Ÿå†
+			satpos	å­˜æ”¾å«æ˜Ÿä½ç½®çš„æ•°ç»„
+			t		å½“å‰å†å…ƒçš„æ—¶é—´
+			prn		å«æ˜Ÿæ•°
+			psr		ä¼ªè·
+			xyz		æµ‹ç«™åæ ‡
+è¿”å›å€¼ï¼š0=è®¡ç®—å¤±è´¥
 ****************************/
 int SatPosition(Ephem* Eph, SatPosSet* satpos, GPSTIME* t,unsigned long prn,double psr,XYZ* xyz)
 {
-	eph_t* eph = &Eph->eph[prn - 1];//ËùÑ¡ÎÀĞÇµÄĞÇÀú
-	//¼ÆËã´ÖÂÔ·¢ÉäÊ±¿Ì
+	eph_t* eph = &Eph->eph[prn - 1];//æ‰€é€‰å«æ˜Ÿçš„æ˜Ÿå†
+	//è®¡ç®—ç²—ç•¥å‘å°„æ—¶åˆ»
 	double t_tr = t->SecOfWeek - psr / c;
-	//¼ÆËãÏà¶ÔÓÚĞÇÀú²Î¿¼ÀúÔªµÄÊ±¼ä
+	//è®¡ç®—ç›¸å¯¹äºæ˜Ÿå†å‚è€ƒå†å…ƒçš„æ—¶é—´
 	double t_k = (double)(t->Week - eph->Week) * 7 * 86400.0 + t_tr - eph->toe;
 	if (fabs(t_k) > 7200)
 	{
-		return 0;//ĞÇÀú¹ıÆÚ
+		return 0;//æ˜Ÿå†è¿‡æœŸ
 	}
 	
 	double e = eph->ecc;
 	double F = -4.442807633e-10;
 	double A = eph->A;
-	//¼ÆËãÆ½¾ùÔË¶¯½ÇËÙ¶È
+	//è®¡ç®—å¹³å‡è¿åŠ¨è§’é€Ÿåº¦
 	double n0 = sqrt(miu / pow(A, 3));
-	//¶ÔÆ½¾ùÔË¶¯½ÇËÙ¶È½øĞĞ¸ÄÕı
+	//å¯¹å¹³å‡è¿åŠ¨è§’é€Ÿåº¦è¿›è¡Œæ”¹æ­£
 	double n = n0 + eph->deltaN;
 	double M_k, E0, E_k, dtr, dtoc, dtsv,rho,v_k,Phi_k;
 	double du_k, dr_k, di_k, u_k, r_k, i_k, x, y, z;
 	double Omega_k, x_k, y_k;
 	double t_trold = t_tr;
 	int loopn = 0;
-	//µü´ú¼ÆËãÎÀĞÇÎ»ÖÃºÍÖÓ²î
+	//è¿­ä»£è®¡ç®—å«æ˜Ÿä½ç½®å’Œé’Ÿå·®
 	do{
-		// ¼ÆËãÆ½½üµã½Ç
+		// è®¡ç®—å¹³è¿‘ç‚¹è§’
 		M_k = eph->M0 + n * t_k;
-		//¼ÆËãÆ«½üµã½Ç
+		//è®¡ç®—åè¿‘ç‚¹è§’
 		E0 = 0.02;
 		int flag = 0;
 		E_k = M_k + e * sin(E0);
@@ -51,29 +51,29 @@ int SatPosition(Ephem* Eph, SatPosSet* satpos, GPSTIME* t,unsigned long prn,doub
 			E_k = M_k + e * sin(E0);
 			flag++;
 		}
-		//¼ÆËãÕæ½üµã½Ç
+		//è®¡ç®—çœŸè¿‘ç‚¹è§’
 		v_k = atan2(sqrt(1 - e * e) * sin(E_k), cos(E_k) - e);
-		//¼ÆËãÉı½»½Ç¾à
+		//è®¡ç®—å‡äº¤è§’è·
 		Phi_k = v_k + eph->omega;
-		//¼ÆËã¶ş½×µ÷ºÍ¸ÄÕıÊı
+		//è®¡ç®—äºŒé˜¶è°ƒå’Œæ”¹æ­£æ•°
 		du_k = eph->cus * sin(2 * Phi_k) + eph->cuc * cos(2 * Phi_k);
 		dr_k = eph->crs * sin(2 * Phi_k) + eph->crc * cos(2 * Phi_k);
 		di_k = eph->cis * sin(2 * Phi_k) + eph->cic * cos(2 * Phi_k);
-		//¼ÆËã¾­¹ı¸ÄÕıµÄÉı½»½Ç¾à¡¢Ïò¾¶¡¢¹ìµÀÇã½Ç
+		//è®¡ç®—ç»è¿‡æ”¹æ­£çš„å‡äº¤è§’è·ã€å‘å¾„ã€è½¨é“å€¾è§’
 		u_k = Phi_k + du_k;
 		r_k = A * (1 - e * cos(E_k)) + dr_k;
 		i_k = eph->I0 + di_k + eph->Idot * t_k;
-		//¼ÆËãÎÀĞÇÔÚ¹ìµÀÆ½ÃæÉÏµÄÎ»ÖÃ
+		//è®¡ç®—å«æ˜Ÿåœ¨è½¨é“å¹³é¢ä¸Šçš„ä½ç½®
 		x_k = r_k * cos(u_k);
 		y_k = r_k * sin(u_k);
-		//¼ÆËã¸ÄÕıºóµÄÉı½»µã¾­¶È
+		//è®¡ç®—æ”¹æ­£åçš„å‡äº¤ç‚¹ç»åº¦
 		Omega_k = eph->omega0 + (eph->omegadot - Omega_e) * t_k - Omega_e * eph->toe;
-		//¼ÆËãÔÚµØ¹Ì×ø±êÏµÏÂµÄÎ»ÖÃ
+		//è®¡ç®—åœ¨åœ°å›ºåæ ‡ç³»ä¸‹çš„ä½ç½®
 		x = x_k * cos(Omega_k) - y_k * cos(i_k) * sin(Omega_k);
 		y = x_k * sin(Omega_k) + y_k * cos(i_k) * cos(Omega_k);
 		z = y_k * sin(i_k);
 		
-		//ÖÓ²î¼ÆËã
+		//é’Ÿå·®è®¡ç®—
 		dtr = F * e * sqrt(A) * sin(E_k);
 		dtoc = (double)(t->Week - eph->Week) * 7 * 86400.0 + t->SecOfWeek - eph->toc;
 		dtsv = eph->af0 + eph->af1 * dtoc + eph->af2 * pow(dtoc, 2) + dtr - eph->tgd;
@@ -88,7 +88,7 @@ int SatPosition(Ephem* Eph, SatPosSet* satpos, GPSTIME* t,unsigned long prn,doub
 		loopn++;
 	} while (loopn < 15);
 	
-	//ÎÀĞÇÔË¶¯ËÙ¶È¼ÆËã
+	//å«æ˜Ÿè¿åŠ¨é€Ÿåº¦è®¡ç®—
 	double E_kdot = n / (1 - e * cos(E_k));
 	double Phi_kdot = sqrt((1 + e) / (1 - e)) * pow(cos(v_k / 2), 2) / pow(cos(E_k / 2), 2) * E_kdot;
 	double u_kdot = 2 * (eph->cus * cos(2 * Phi_k) - eph->cuc * sin(2 * Phi_k)) * Phi_kdot + Phi_kdot;
@@ -104,11 +104,11 @@ int SatPosition(Ephem* Eph, SatPosSet* satpos, GPSTIME* t,unsigned long prn,doub
 	double Vdot[3] = {0};
 	MatrixMultiply(3, 4, 4, 1, Rdot, tmp, Vdot);
 	
-	//ÎÀĞÇÖÓËÙ¸ÄÕı
+	//å«æ˜Ÿé’Ÿé€Ÿæ”¹æ­£
 	double dtrd = F * e * sqrt(A) * cos(E_k) * E_kdot;
 	double dtsvd = eph->af1 + 2 * eph->af2 * dtoc + dtrd;
 
-	//µØÇò×Ô×ª¸ÄÕı
+	//åœ°çƒè‡ªè½¬æ”¹æ­£
 	rho = sqrt(pow(x - xyz->X, 2) + pow(y - xyz->Y, 2) + pow(z - xyz->Z, 2));
 	double omegatao = Omega_e * rho / c;
 	double originpos[3] = { x,y,z };
@@ -131,20 +131,20 @@ int SatPosition(Ephem* Eph, SatPosSet* satpos, GPSTIME* t,unsigned long prn,doub
 /***************************
 Klobutchar
 
-¹¦ÄÜ£ºµçÀë²ãÑÓ³Ù¸ÄÕı
+åŠŸèƒ½ï¼šç”µç¦»å±‚å»¶è¿Ÿæ”¹æ­£
 
-ÊäÈë²ÎÊı£º	blh		²âÕ¾µÄ×ø±êÎ»ÖÃ£¬½Ç¶ÈÖÆ
-			gpst	µ±Ç°ÀúÔªµÄÊ±¼ä
-			ionutc	µçÀë²ã²ÎÊı
-			E		¸ß¶È½Ç£¬½Ç¶È
-			A		·½Î»½Ç£¬½Ç¶È
-·µ»ØÖµ£º0=ÎŞ·¨¼ÆËã£¬ÆäËû·µ»ØÖµ¼´Îª¸ÄÕıÊı
+è¾“å…¥å‚æ•°ï¼š	blh		æµ‹ç«™çš„åæ ‡ä½ç½®ï¼Œè§’åº¦åˆ¶
+			gpst	å½“å‰å†å…ƒçš„æ—¶é—´
+			ionutc	ç”µç¦»å±‚å‚æ•°
+			E		é«˜åº¦è§’ï¼Œè§’åº¦
+			A		æ–¹ä½è§’ï¼Œè§’åº¦
+è¿”å›å€¼ï¼š0=æ— æ³•è®¡ç®—ï¼Œå…¶ä»–è¿”å›å€¼å³ä¸ºæ”¹æ­£æ•°
 ****************************/
 double Klobutchar(BLh* blh,GPSTIME* gpst,IONUTC* ionutc,double E,double A)
 {
 	if (blh->H > 50000)
 	{
-		printf("¶¨Î»µã³¬¹ıµçÀë²ãÇøÓò£¬ÎŞ·¨¸ÄÕı¡£\n");
+		printf("å®šä½ç‚¹è¶…è¿‡ç”µç¦»å±‚åŒºåŸŸï¼Œæ— æ³•æ”¹æ­£ã€‚\n");
 		return 0;
 	}
 	double psi = 0.0137 / (E / 180 + 0.11) - 0.022;
@@ -174,11 +174,11 @@ double Klobutchar(BLh* blh,GPSTIME* gpst,IONUTC* ionutc,double E,double A)
 /***************************
 Hopfield
 
-¹¦ÄÜ£º¶ÔÁ÷²ãÑÓ³Ù¸ÄÕı
+åŠŸèƒ½ï¼šå¯¹æµå±‚å»¶è¿Ÿæ”¹æ­£
 
-ÊäÈë²ÎÊı£º	blh		²âÕ¾µÄ×ø±êÎ»ÖÃ£¬½Ç¶ÈÖÆ
-			E		¸ß¶È½Ç£¬½Ç¶È
-·µ»ØÖµ£º0=ÎŞ·¨¼ÆËã£¬ÆäËû·µ»ØÖµ¼´Îª¸ÄÕıÊı
+è¾“å…¥å‚æ•°ï¼š	blh		æµ‹ç«™çš„åæ ‡ä½ç½®ï¼Œè§’åº¦åˆ¶
+			E		é«˜åº¦è§’ï¼Œè§’åº¦
+è¿”å›å€¼ï¼š0=æ— æ³•è®¡ç®—ï¼Œå…¶ä»–è¿”å›å€¼å³ä¸ºæ”¹æ­£æ•°
 ****************************/
 double Hopfield(BLh* blh, double E)
 {
@@ -200,13 +200,13 @@ double Hopfield(BLh* blh, double E)
 /***************************
 spp
 
-¹¦ÄÜ£ºSPPµ¥µã¶¨Î»ºÍSPVµ¥µã²âËÙ
+åŠŸèƒ½ï¼šSPPå•ç‚¹å®šä½å’ŒSPVå•ç‚¹æµ‹é€Ÿ
 
-ÊäÈë²ÎÊı£º	obs		¹Û²âÖµÎÄ¼ş
-			ephset	ĞÇÀúÎÄ¼ş
-			ionutc	µçÀë²ã¸ÄÕı²ÎÊı£¬ÓÃÓÚµçÀë²ã¸ÄÕı
-			pos		¶¨Î»½á¹ûÎÄ¼ş£¨ºóĞøÀúÔªÒÔÉÏÒ»ÀúÔªµÄ½á¹ûÎªÊäÈëÖµ£©
-·µ»ØÖµ£º0=¶¨Î»Ê§°Ü£¬1=¶¨Î»³É¹¦
+è¾“å…¥å‚æ•°ï¼š	obs		è§‚æµ‹å€¼æ–‡ä»¶
+			ephset	æ˜Ÿå†æ–‡ä»¶
+			ionutc	ç”µç¦»å±‚æ”¹æ­£å‚æ•°ï¼Œç”¨äºç”µç¦»å±‚æ”¹æ­£
+			pos		å®šä½ç»“æœæ–‡ä»¶ï¼ˆåç»­å†å…ƒä»¥ä¸Šä¸€å†å…ƒçš„ç»“æœä¸ºè¾“å…¥å€¼ï¼‰
+è¿”å›å€¼ï¼š0=å®šä½å¤±è´¥ï¼Œ1=å®šä½æˆåŠŸ
 ****************************/
 int spp(EpochObs* obs,Ephem* ephset,IONUTC* ionutc,PosResult* pos,RTCM* rtcm)
 {
@@ -215,12 +215,12 @@ int spp(EpochObs* obs,Ephem* ephset,IONUTC* ionutc,PosResult* pos,RTCM* rtcm)
 	double R2D = 180 / PI;
 	int num;
 	double M;
-	BLh blh;//´óµØ×ø±ê
+	BLh blh;//å¤§åœ°åæ ‡
 	blh = pos->blh;
 	XYZ xyz;
 	double cdt=pos->cdt;
 	double PRC,RRC;
-	int flag = 0;//µü´ú´ÎÊıÏŞÖÆ
+	int flag = 0;//è¿­ä»£æ¬¡æ•°é™åˆ¶
 	double w[NSAT] = { 0 };
 	double B[NSAT * 4] = {0};
 	double B1[NSAT * 4] = { 0 };
@@ -230,10 +230,10 @@ int spp(EpochObs* obs,Ephem* ephset,IONUTC* ionutc,PosResult* pos,RTCM* rtcm)
 	double B5[NSAT] = {0};
 	double Result[4] = { 0 };
 	double v[NSAT] = { 0 };
-	int satUsed[NSAT] = { 0 };//´æ·ÅËùÓÃ¹Û²âÖµµÄË÷Òı
-	SatPosSet satpos;//´æ·ÅĞÇÀú
+	int satUsed[NSAT] = { 0 };//å­˜æ”¾æ‰€ç”¨è§‚æµ‹å€¼çš„ç´¢å¼•
+	SatPosSet satpos;//å­˜æ”¾æ˜Ÿå†
 	do {
-		num = 0;//Í³¼ÆÓÃÓÚ¼ÆËãµÄÎÀĞÇÊı
+		num = 0;//ç»Ÿè®¡ç”¨äºè®¡ç®—çš„å«æ˜Ÿæ•°
 		M = 0;
 		memset(w, 0, sizeof(w));
 		memset(Result, 0, sizeof(Result));
@@ -249,19 +249,17 @@ int spp(EpochObs* obs,Ephem* ephset,IONUTC* ionutc,PosResult* pos,RTCM* rtcm)
 		{
 			unsigned long prn = obs->Obs[i].prn;
 			GPSTIME t = obs->Time;
-			//¶ÔÓ¦ÎÀĞÇprnµÄĞÇÀú´æÔÚ£¬ÇÒĞÇÀúµÄIODEÓë²î·Ö¹Û²âÖµµÄAODÏàµÈ
-			if ((ephset->eph[prn - 1].PRN != 0)&&(rtcm->newDgps[prn-1].hasRead)&&(ephset->eph[prn-1].IODE1==rtcm->newDgps[prn-1].AOD))
+			//å¯¹åº”å«æ˜Ÿprnçš„æ˜Ÿå†å­˜åœ¨ï¼Œä¸”æ˜Ÿå†çš„IODEä¸å·®åˆ†è§‚æµ‹å€¼çš„AODç›¸ç­‰
+			if ((ephset->eph[prn - 1].PRN != 0)&&(rtcm->dGPS[prn-1].hasRead)&&(ephset->eph[prn-1].IODE1==rtcm->dGPS[prn-1].AOD))
 			{
-				//printf("%d,%d,%d\n", prn,ephset->eph[prn - 1].IODE1, rtcm->newDgps[prn - 1].AOD);
-				PRC = rtcm->newDgps[prn - 1].PRC; 
-				RRC = rtcm->newDgps[prn - 1].RRC;
-				double delta_t = (int)obs->Time.SecOfWeek % 3600 + obs->Time.SecOfWeek - (int)obs->Time.SecOfWeek - rtcm->soh.secOfHour;
+				PRC = rtcm->dGPS[prn - 1].PRC; 
+				RRC = rtcm->dGPS[prn - 1].RRC;
+				double delta_t = (int)obs->Time.SecOfWeek % 3600 + obs->Time.SecOfWeek - (int)obs->Time.SecOfWeek - rtcm->soh;
 				PRC = PRC + RRC * delta_t;
-				if (SatPosition(ephset, &satpos, &t, prn,obs->Obs[i].Psr+PRC,&xyz))//ÎÀĞÇÎ»ÖÃ¼ÆËãÊ§°ÜÔòÌø¹ı
+				if (SatPosition(ephset, &satpos, &t, prn,obs->Obs[i].Psr+PRC,&xyz))//å«æ˜Ÿä½ç½®è®¡ç®—å¤±è´¥åˆ™è·³è¿‡
 				{
-					
 					SatPos sat = satpos.satpos[prn - 1];
-					//¼ÆËãÎÀĞÇµÄ¸ß¶È½ÇºÍ·½Î»½Ç
+					//è®¡ç®—å«æ˜Ÿçš„é«˜åº¦è§’å’Œæ–¹ä½è§’
 					double detpos[3] = { sat.x - xyz.X,
 										sat.y - xyz.Y,
 										sat.z - xyz.Z };
@@ -272,7 +270,7 @@ int spp(EpochObs* obs,Ephem* ephset,IONUTC* ionutc,PosResult* pos,RTCM* rtcm)
 					MatrixMultiply(3, 3, 3, 1, trans_H, detpos, sta_cen_coor);
 					double azimuth = R2D * atan2(sta_cen_coor[1], sta_cen_coor[0]);
 					double ele = fabs(R2D * atan(sta_cen_coor[2] / sqrt(pow(sta_cen_coor[0], 2) + pow(sta_cen_coor[1], 2))));
-					if (ele < 15)//¸ß¶È½ÇĞ¡ÓÚ15¶ÈµÄ²»Òª
+					if (ele < 15)//é«˜åº¦è§’å°äº15åº¦çš„ä¸è¦
 						continue;
 
 					double rho = sqrt(pow(sat.x - xyz.X, 2) + pow(sat.y - xyz.Y, 2) + pow(sat.z - xyz.Z, 2));
@@ -290,7 +288,7 @@ int spp(EpochObs* obs,Ephem* ephset,IONUTC* ionutc,PosResult* pos,RTCM* rtcm)
 		}
 		if (num < 4)
 		{
-			printf("ÎÀĞÇÊı²»×ã4¡£\n");
+			printf("å«æ˜Ÿæ•°ä¸è¶³4ã€‚\n");
 			return 0;
 		}
 		MatrixTrans(num,4,B,B1);
@@ -315,7 +313,7 @@ int spp(EpochObs* obs,Ephem* ephset,IONUTC* ionutc,PosResult* pos,RTCM* rtcm)
 	MatrixMultiply(1, num, num, 1, v, v, vv);
 	double sigma0 = sqrt(vv[0] / ((double)num - 4));
 	XYZ2BLh(&xyz, &blh);
-	//Êä³ö¶¨Î»½á¹û
+	//è¾“å‡ºå®šä½ç»“æœ
 	pos->blh = blh;
 	pos->x = xyz.X;
 	pos->y = xyz.Y;
@@ -323,7 +321,7 @@ int spp(EpochObs* obs,Ephem* ephset,IONUTC* ionutc,PosResult* pos,RTCM* rtcm)
 	pos->cdt = cdt;
 	pos->sigma0 = sigma0;
 	
-	//µ¥µã²âËÙ
+	//å•ç‚¹æµ‹é€Ÿ
 	double w_v[NSAT] = { 0 };
 	double H[NSAT * 4] = { 0 };
 	double H1[NSAT * 4] = { 0 };
@@ -334,7 +332,7 @@ int spp(EpochObs* obs,Ephem* ephset,IONUTC* ionutc,PosResult* pos,RTCM* rtcm)
 	double Result_v[4] = { 0 };
 	for (int i = 0; i < num; i++)
 	{
-		//¶ÁÈ¡¶ÔÓ¦ÎÀĞÇµÄ¶¨Î»½á¹û
+		//è¯»å–å¯¹åº”å«æ˜Ÿçš„å®šä½ç»“æœ
 		unsigned long prn = obs->Obs[satUsed[i]].prn;
 		SatPos sat = satpos.satpos[prn - 1];
 		double rho = sqrt(pow(sat.x - pos->x, 2) + pow(sat.y - pos->y, 2) + pow(sat.z - pos->z, 2));

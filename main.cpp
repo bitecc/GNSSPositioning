@@ -1,4 +1,4 @@
-#include"self_defination.h"
+ï»¿#include"self_defination.h"
 #include"sockets.h"
 
 
@@ -52,7 +52,7 @@ int main()
 	fclose(flog1);
 	fclose(flog2);
 	system("pause");*/
-	//Ô­Ê¼Êı¾İ¶¨ÒåÓë³õÊ¼»¯
+	//åŸå§‹æ•°æ®å®šä¹‰ä¸åˆå§‹åŒ–
 	raw_t raw;
 	memset(&raw.Eph, 0, NSAT * sizeof(eph_t));
 	memset(&raw.ionutc, 0, sizeof(IONUTC));
@@ -62,7 +62,7 @@ int main()
 	raw.MyPos.blh.B = 30;
 	raw.MyPos.blh.L = 114;
 	raw.MyPos.blh.H = 40;
-	//¶¨ÒåÁ½¸ö¶Ë¿Ú
+	//å®šä¹‰ä¸¤ä¸ªç«¯å£
 	SOCKET sockOEM; SOCKET sockRTCM;
 	char IP[] = "47.114.134.129";
 	unsigned short portOEM = 4000;
@@ -73,13 +73,13 @@ int main()
 	int lenR_OEM, lenL_OEM, lenR_RTCM, lenL_RTCM;
 	lenL_OEM = 0; lenL_RTCM = 0;
 	int rtn; int sIndex;
-	//ÎÄ¼ş
+	//æ–‡ä»¶
 	FILE* pos;
 	pos = fopen("result.pos", "w+");
-	// ´ò¿ªsocket¶Ë¿Ú
+	// æ‰“å¼€socketç«¯å£
 	OEMFlag = OpenSocket(sockOEM, IP, portOEM);
 	RTCMFlag = OpenSocket(sockRTCM, IP, portRTCM);
-	// ÍøÂçÍ¨ĞÅ¶ÁÊı¾İ·½·¨
+	// ç½‘ç»œé€šä¿¡è¯»æ•°æ®æ–¹æ³•
 	while (OEMFlag&&RTCMFlag) 
 	{
 		if ((lenR_OEM = recv(sockOEM, (char*)OEMBuff+lenL_OEM, MAXOEMLEN-lenL_OEM, 0)) < 3)
@@ -97,14 +97,13 @@ int main()
 		else
 		{
 			Sleep(1200);
-			//µ÷ÓÃÏàÓ¦µÄ´¦Àíº¯Êı
+			//è°ƒç”¨ç›¸åº”çš„å¤„ç†å‡½æ•°
 			lenL_RTCM = RTCMProcess(RTCMBuff, lenR_RTCM + lenL_RTCM, &raw.rtcm);
 			lenL_OEM = OEMProcess(OEMBuff, lenR_OEM + lenL_OEM,&raw,pos);
-			//printf("%f\n", raw.Epoch.Time.SecOfWeek);
 		}
 	}
 	
-	// ¹Ø±Õ¶Ë¿Ú
+	// å…³é—­ç«¯å£
 	CloseSocket(sockOEM);
 	CloseSocket(sockRTCM);
 	fclose(pos);

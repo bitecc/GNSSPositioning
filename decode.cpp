@@ -1,8 +1,8 @@
-#include"self_defination.h"
-#define HEAD1 0xAA /* Í¬²½×Ö½Ú1 */
-#define HEAD2 0x44 /* Í¬²½×Ö½Ú2 */
-#define HEAD3 0x12 /* Í¬²½×Ö½Ú3 */
-#define HEADLEN 28 /* Êı¾İÍ·³¤¶È */
+ï»¿#include"self_defination.h"
+#define HEAD1 0xAA /* åŒæ­¥å­—èŠ‚1 */
+#define HEAD2 0x44 /* åŒæ­¥å­—èŠ‚2 */
+#define HEAD3 0x12 /* åŒæ­¥å­—èŠ‚3 */
+#define HEADLEN 28 /* æ•°æ®å¤´é•¿åº¦ */
 #define POLYCRC32 0xED888320u
 #define ID_RANGE 43
 #define ID_GPSEPHEM 7
@@ -27,12 +27,12 @@ int find_head(unsigned char* buff, unsigned char data)
 /***************************
 DecodeRangeb
 
-¹¦ÄÜ£º´Ó¶ş½øÖÆ»º³åÇøÖĞ£¬¸ù¾İOEMSTAR rangebµÄÊı¾İ¸ñÊ½£¬½âÂëµÃµ½GNSS¹Û²âÖµ¡£
-	  ²Î¿¼OEMSTARÃüÁîÎÄµµ
+åŠŸèƒ½ï¼šä»äºŒè¿›åˆ¶ç¼“å†²åŒºä¸­ï¼Œæ ¹æ®OEMSTAR rangebçš„æ•°æ®æ ¼å¼ï¼Œè§£ç å¾—åˆ°GNSSè§‚æµ‹å€¼ã€‚
+	  å‚è€ƒOEMSTARå‘½ä»¤æ–‡æ¡£
 
-ÊäÈë²ÎÊı£ºbuff    ±£´ædataµÄ»º³åÇø
-		  len     »º³åÇøÊı¾İµÄ³¤¶È
-		  Epoch   ÀúÔª¹Û²âÊı¾İ
+è¾“å…¥å‚æ•°ï¼šbuff    ä¿å­˜dataçš„ç¼“å†²åŒº
+		  len     ç¼“å†²åŒºæ•°æ®çš„é•¿åº¦
+		  Epoch   å†å…ƒè§‚æµ‹æ•°æ®
 ****************************/
 void DecodeRangeb(unsigned char buff[], int len, EpochObs* Obs)
 {
@@ -66,12 +66,12 @@ void DecodeRangeb(unsigned char buff[], int len, EpochObs* Obs)
 /***************************
 DecodeGpsEphemb
 
-¹¦ÄÜ£º´Ó¶ş½øÖÆ»º³åÇøÖĞ£¬¸ù¾İOEMSTAT GPSEPHEMµÄÊı¾İ¸ñÊ½£¬½âÂëµÃµ½GPSĞÇÀú¡£
-	  ²Î¿¼OEMSTARÃüÁîÎÄµµ
+åŠŸèƒ½ï¼šä»äºŒè¿›åˆ¶ç¼“å†²åŒºä¸­ï¼Œæ ¹æ®OEMSTAT GPSEPHEMçš„æ•°æ®æ ¼å¼ï¼Œè§£ç å¾—åˆ°GPSæ˜Ÿå†ã€‚
+	  å‚è€ƒOEMSTARå‘½ä»¤æ–‡æ¡£
 
-ÊäÈë²ÎÊı£ºbuff    ±£´ædataµÄ»º³åÇø
-		  len     »º³åÇøÊı¾İµÄ³¤¶È
-		  Eph	  ĞÇÀúÊı¾İ
+è¾“å…¥å‚æ•°ï¼šbuff    ä¿å­˜dataçš„ç¼“å†²åŒº
+		  len     ç¼“å†²åŒºæ•°æ®çš„é•¿åº¦
+		  Eph	  æ˜Ÿå†æ•°æ®
 ****************************/
 void DecodeGpsEphemb(unsigned char buff[], int len, Ephem* Eph)
 {
@@ -141,11 +141,11 @@ int crc32(const unsigned char* buff, int len)
 /***************************
 DecodeOEMData
 
-¹¦ÄÜ£º´Ó¶ş½øÖÆOEMSTARÊı¾İÎÄ¼ş£¬¶ÁÈ¡Êı¾İ²¢½âÂë£¬µÃµ½GNSS¹Û²âÖµ¡¢¹ã²¥ĞÇÀúºÍ½ÓÊÕ»ú¶¨Î»½á¹û£¬±£´æµ½raw½á¹¹Ìå¡£
+åŠŸèƒ½ï¼šä»äºŒè¿›åˆ¶OEMSTARæ•°æ®æ–‡ä»¶ï¼Œè¯»å–æ•°æ®å¹¶è§£ç ï¼Œå¾—åˆ°GNSSè§‚æµ‹å€¼ã€å¹¿æ’­æ˜Ÿå†å’Œæ¥æ”¶æœºå®šä½ç»“æœï¼Œä¿å­˜åˆ°rawç»“æ„ä½“ã€‚
 
-ÊäÈë²ÎÊı£ºrawBuff	Êı¾İ»º³åÇø
-		  raw		¹Û²âÊı¾İ¡¢ĞÇÀúÊı¾İµÈ
-·µ»ØÖµ£º0=½áÊø£»1=¹Û²âÊı¾İ£»2=ĞÇÀú£¬-1=CRC¼ìÑé²»Í¨¹ı£¬6=IONUTC
+è¾“å…¥å‚æ•°ï¼šrawBuff	æ•°æ®ç¼“å†²åŒº
+		  raw		è§‚æµ‹æ•°æ®ã€æ˜Ÿå†æ•°æ®ç­‰
+è¿”å›å€¼ï¼š0=ç»“æŸï¼›1=è§‚æµ‹æ•°æ®ï¼›2=æ˜Ÿå†ï¼Œ-1=CRCæ£€éªŒä¸é€šè¿‡ï¼Œ6=IONUTC
 ****************************/
 int DecodeOEMData(unsigned char* rawBuff, int LenR, int* sIndex, raw_t* raw)
 {
@@ -191,7 +191,7 @@ int DecodeOEMData(unsigned char* rawBuff, int LenR, int* sIndex, raw_t* raw)
 	*sIndex += index;
 	if (crc32(buff, tolLen - 4) != I4(buff + tolLen - 4))
 	{
-		printf("CRCĞ£ÑéÎ´Í¨¹ı£¡\n");
+		printf("CRCæ ¡éªŒæœªé€šè¿‡ï¼\n");
 		return -1;
 	}
 	Time.Week = U2(buff + 14);
@@ -220,7 +220,7 @@ int DecodeOEMData(unsigned char* rawBuff, int LenR, int* sIndex, raw_t* raw)
 	return 0;
 }
 
-//»ñÈ¡Ò»Î»×Ö·û
+//å­—èŠ‚æ»šåŠ¨
 int decodeRTCMByte(unsigned char bDat)
 {
 	bDat = bDat << 1;
@@ -231,11 +231,11 @@ int decodeRTCMByte(unsigned char bDat)
 	return bDat;
 }
 
-//RTCMÆæÅ¼Ğ£Ñé
+//RTCMå¥‡å¶æ ¡éªŒ
 int RTCMParityChk(unsigned char lastParity, unsigned char word[4])
 {
 	int i, parity, d29, d30, checkedNum = 0;
-	//ÍØÕ¹Îª30Î»
+	//æ‹“å±•ä¸º30ä½
 	unsigned char d[30] = { 0 };
 	for (i = 0; i < 30; i++)
 	{
@@ -243,7 +243,7 @@ int RTCMParityChk(unsigned char lastParity, unsigned char word[4])
 		if (i >= 24) d[i] = (word[i / 8] >> (5 - (i % 8))) & 0x1;
 	}
 
-	//½øĞĞÆæÅ¼Ğ£Ñé
+	//è¿›è¡Œå¥‡å¶æ ¡éªŒ
 	d29 = (lastParity >> 1) & 0x1;
 	d30 = lastParity & 0x1;
 
@@ -275,36 +275,36 @@ int RTCMParityChk(unsigned char lastParity, unsigned char word[4])
 	else return 0;
 }
 
-//»ñÈ¡Ò»¸ö×Ö
+//è·å–ä¸€ä¸ªå­—
 int getRTCMWord(unsigned char word[4], unsigned char lastParity, unsigned char rawword[5])
 {
 	int i;
-	//×Ö½Ú·­×ª
+	//å­—èŠ‚ç¿»è½¬
 	for (i = 0; i < 5; i++)
 	{
 		if (rawword[i] < 64 && rawword[i] > 127) return -1;
 		rawword[i] = decodeRTCMByte(rawword[i]);
 	}
-	//Æ´½ÓÎªÒ»¸ö×Ö
+	//æ‹¼æ¥ä¸ºä¸€ä¸ªå­—
 	word[0] = (rawword[0] << 2) | (rawword[1] >> 4);
 	word[1] = (rawword[1] << 4) | (rawword[2] >> 2);
 	word[2] = (rawword[2] << 6) | (rawword[3]);
 	word[3] = rawword[4];
 
-	//d30Îª1Ê±¶ÔÇ°24Î»È¡·´Âë
+	//d30ä¸º1æ—¶å¯¹å‰24ä½å–åç 
 	if ((lastParity & 0x1) == 1)
 	{
 		for (i = 0; i < 3; i++) word[i] = word[i] ^ 0xFF;
 	}
 
-	//ÆæÅ¼Ğ£Ñé
+	//å¥‡å¶æ ¡éªŒ
 	if (!RTCMParityChk(lastParity, word)) return 0;
 
 	return 1;
 }
 
-//½âÂëRTCMÎÄ¼şÌå
-int decodeRTCMType1(unsigned char buff[], unsigned short bodyLgt, SecOfHour soh, DGPS dgps[])
+//è§£ç RTCMæ–‡ä»¶ä½“ï¼Œç”µæ–‡1
+int decodeRTCMType1(unsigned char buff[], unsigned short bodyLgt, double soh, DGPS dgps[])
 {
 	int i;
 	unsigned short PRN;
@@ -330,12 +330,12 @@ int decodeRTCMType1(unsigned char buff[], unsigned short bodyLgt, SecOfHour soh,
 /***************************
 DecodeRTCMData
 
-¹¦ÄÜ£º¶ÁÈ¡RTCMµÄÎÄ¼şÍ·ºÍµçÎÄ1
+åŠŸèƒ½ï¼šè¯»å–RTCMçš„æ–‡ä»¶å¤´å’Œç”µæ–‡1
 
-ÊäÈë²ÎÊı£ºbuff		Êı¾İ»º³åÇø
-		  len		Êı¾İ»º³åÇøµÄ³¤¶È
-		  sIndex	±ê¼ÇÃ¿Ò»×éµçÎÄµÄ¿ªÊ¼Î»ÖÃ
-·µ»ØÖµ£º0=½áÊø£»1=µçÎÄ1½âÂë³É¹¦£»-1=ÆæÅ¼¼ìÑé²»Í¨¹ı£¬-2=¿Õ¼ä²»×ã
+è¾“å…¥å‚æ•°ï¼šbuff		æ•°æ®ç¼“å†²åŒº
+		  len		æ•°æ®ç¼“å†²åŒºçš„é•¿åº¦
+		  sIndex	æ ‡è®°æ¯ä¸€ç»„ç”µæ–‡çš„å¼€å§‹ä½ç½®
+è¿”å›å€¼ï¼š0=ç»“æŸï¼›1=ç”µæ–‡1è§£ç æˆåŠŸï¼›-1=å¥‡å¶æ£€éªŒä¸é€šè¿‡ï¼Œ-2=ç©ºé—´ä¸è¶³
 ****************************/
 int DecodeRTCMData(unsigned char* buff, int len, int* sIndex, RTCM* rtcm)
 {
@@ -343,7 +343,7 @@ int DecodeRTCMData(unsigned char* buff, int len, int* sIndex, RTCM* rtcm)
 	unsigned char lastParity, firstDat, secondDat, bodyRst[MAXRTCMLEN], rawWord[5], word[4];
 	DGPS tDgps[NSAT];
 	firstDat = rtcm->lastP;
-	//×Ö½ÚÉ¨Ãè
+	//å­—èŠ‚æ‰«æ
 	if (firstDat == 0)
 	{
 		while ((firstDat < 64 || firstDat>127))
@@ -374,7 +374,7 @@ int DecodeRTCMData(unsigned char* buff, int len, int* sIndex, RTCM* rtcm)
 			if (((lastParity & 0x1) == 1) && (firstDat == 0x26) && (secondDat >= 0x16 && secondDat < 0x20)) break;
 			lastParity = firstDat; firstDat = secondDat;
 		}
-		//»ñÈ¡ÎÄ¼şÍ·µÄµÚÒ»¸ö×Ö
+		//è·å–æ–‡ä»¶å¤´çš„ç¬¬ä¸€ä¸ªå­—
 		index -= 2;
 		if (index + 5 > len)
 		{
@@ -388,7 +388,7 @@ int DecodeRTCMData(unsigned char* buff, int len, int* sIndex, RTCM* rtcm)
 		lastParity = word[3];
 		if (flag1 < 0)continue;
 		memcpy(bodyRst, word, 3);
-		//»ñÈ¡µÚ¶ş¸ö×Ö
+		//è·å–ç¬¬äºŒä¸ªå­—
 		if (index + 5 > len)
 		{
 			rtcm->lastP = word[3];
@@ -402,25 +402,24 @@ int DecodeRTCMData(unsigned char* buff, int len, int* sIndex, RTCM* rtcm)
 		if (flag2 < 0) continue;
 		memcpy(bodyRst + 3, word, 3);
 
-		//Á½¸ö×ÖµÄÆæÅ¼Ğ£ÑéÍ¨¹ıÔò½áÊøÑ°ÕÒ
+		//ä¸¤ä¸ªå­—çš„å¥‡å¶æ ¡éªŒé€šè¿‡åˆ™ç»“æŸå¯»æ‰¾
 		if (flag1 && flag2) break;
 	}
 	unsigned char tempBuff[2];
 	unsigned short msgLgt;
-	rtcm->MsgID = (unsigned short)(bodyRst[1] >> 2);
-	//¼ÆËã»ù×¼Õ¾ÊıÁ¿
+	unsigned short MsgID = (unsigned short)(bodyRst[1] >> 2);
+	//è®¡ç®—åŸºå‡†ç«™æ•°é‡
 	tempBuff[1] = bodyRst[1] & 0x3; tempBuff[0] = bodyRst[2];
 	rtcm->BSNum = U2(tempBuff);
-	//¹¤×÷×´Ì¬
+	//å·¥ä½œçŠ¶æ€
 	rtcm->workState = bodyRst[5] & 0x7;
-	//ÖÜÄÚÃë
+	//å‘¨å†…ç§’
 	tempBuff[0] = ((bodyRst[3] & 0x7) << 5) | (bodyRst[4] >> 3); tempBuff[1] = bodyRst[3] >> 3;
-	if (U2(tempBuff) * 0.6 - rtcm->soh.secOfHour < 0) rtcm->soh.hour++;
-	rtcm->soh.secOfHour = U2(tempBuff) * 0.6;
+	rtcm->soh = U2(tempBuff) * 0.6;
 
 	msgLgt = (unsigned short)(bodyRst[5] >> 3);
 	rtcm->len = msgLgt;
-	//¶ÁÈ¡ºóĞøÎÄ¼şÌåµÄÊı¾İ
+	//è¯»å–åç»­æ–‡ä»¶ä½“çš„æ•°æ®
 	for (i = 0; i < msgLgt - 2; i++)
 	{
 		if (index + 5 > len)
@@ -432,39 +431,35 @@ int DecodeRTCMData(unsigned char* buff, int len, int* sIndex, RTCM* rtcm)
 		memcpy(rawWord, buff + index, 5);
 		index = index + 5;
 		flag1 = getRTCMWord(word, word[3], rawWord);
-		//Ğ£ÑéÎ´Í¨¹ı
+		//æ ¡éªŒæœªé€šè¿‡
 		if (flag1 != 1)
 		{
 			*sIndex += index;
 			rtcm->lastP = word[3];
 			return -1;
 		}
-		//buff¿Õ¼ä²»×ã
+		//buffç©ºé—´ä¸è¶³
 		if (9 + i * 3 > MAXRTCMLEN)
 		{
 			*sIndex += index;
 			rtcm->lastP = word[3];
 			return -2;
 		}
-		//¿½±´ºóĞøÊı¾İÖÁbuff
+		//æ‹·è´åç»­æ•°æ®è‡³buff
 		memcpy(bodyRst + 6 + i * 3, word, 3);
 	}
-	switch (rtcm->MsgID)
+	switch (MsgID)
 	{
 	case 1:
 		decodeRTCMType1(bodyRst + 6, msgLgt - 2, rtcm->soh, tDgps);
-		//½«newÖĞIOD²»Í¬µÄÖµDGPSÖµ¸³¸øold
+		//å°†newä¸­IODä¸åŒçš„å€¼DGPSå€¼èµ‹ç»™old
 		for (i = 0; i < NSAT; i++) {
-			if (tDgps[i].hasRead == 1) {
-				if (tDgps[i].AOD != rtcm->newDgps[i].AOD) {
-					rtcm->oldDgps[i] = rtcm->newDgps[i];
-				}
-				rtcm->newDgps[i] = tDgps[i];
-			}
+			if (tDgps[i].hasRead == 1)
+				rtcm->dGPS[i] = tDgps[i];
 		}
 		break;
 	default:
-		//printf("Ôİ²»Ö§³Ö¸ÃÀàĞÍµÄ½âÂë£¡\n");
+		//printf("æš‚ä¸æ”¯æŒè¯¥ç±»å‹çš„è§£ç ï¼\n");
 		break;
 	}
 
@@ -472,4 +467,3 @@ int DecodeRTCMData(unsigned char* buff, int len, int* sIndex, RTCM* rtcm)
 	rtcm->lastP = word[3];
 	return 1;
 }
-
